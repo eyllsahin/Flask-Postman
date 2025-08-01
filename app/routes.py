@@ -6,8 +6,15 @@ import jwt
 import datetime
 import os
 from app.gemini import chat_with_gemini
-#from .utils import token_required
 from app.gemini import generate_session_title
+from flask import request, jsonify
+from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import ValidationError
+
+class MessageSchema(Schema):
+    sender = fields.String(required=True, validate=validate.OneOf(["user", "bot"]))
+    content = fields.String(required=True)
+    created_at = fields.DateTime()
 
 main = Blueprint('main', __name__)
 
@@ -85,9 +92,11 @@ def login():
 
 @main.route('/chat/message', methods=['POST'])
 def post_message():
-    data = request.get_json()
-    if not data or 'content' not in data:
-        return jsonify({'error': 'Message content required'}), 400
+    schema = MessageSchema()
+    try:
+        data = schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
 
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
@@ -134,7 +143,6 @@ def post_message():
 
         conn.commit()
 
-   
         cursor.execute(
             "SELECT COUNT(*) as count FROM message WHERE session_id = %s AND sender = 'user'",
             (session_id,)
@@ -149,10 +157,18 @@ def post_message():
             )
             conn.commit()
 
+        cursor.execute(
+            "SELECT sender, content, created_at FROM message WHERE session_id = %s ORDER BY created_at ASC",
+            (session_id,)
+        )
+        messages = cursor.fetchall()
+        result = schema.dump(messages, many=True)
+
         return jsonify({
             'user_message': data['content'],
             'chatbot_reply': reply,
-            'session_id': session_id
+            'session_id': session_id,
+            'history': result
         }), 201
 
     except jwt.ExpiredSignatureError:
@@ -169,24 +185,21 @@ def post_message():
         if 'conn' in locals():
             conn.close()
 
-
 @main.route('/chat/message', methods=['GET'])
 def get_messages():
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({'error': 'Token is missing!'}), 401
-    
+
     token = auth_header.split(" ")[1]
     try:
-        data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
-        print(f"Token decoded successfully for: {data.get('email')}")
         decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
         user_id = decoded['user_id']
     except jwt.ExpiredSignatureError:
         return jsonify({'error': 'Token expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'error': 'Invalid token'}), 401
-    
+
     session_id_param = request.args.get('session_id')
 
     conn = get_db_connection()
@@ -195,7 +208,6 @@ def get_messages():
     try:
         if session_id_param:
             session_id = int(session_id_param)
-
             cursor.execute("SELECT id FROM session WHERE id = %s AND user_id = %s", (session_id, user_id))
             session = cursor.fetchone()
             if not session:
@@ -207,15 +219,24 @@ def get_messages():
                 return jsonify({'messages': []}), 200
             session_id = session['id']
 
-     
+       
         cursor.execute(
-            "SELECT sender, content, created_at FROM message WHERE session_id = %s ORDER BY created_at ASC",
+            "SELECT id AS message_id, sender, content, created_at FROM message WHERE session_id = %s ORDER BY created_at ASC",
             (session_id,)
         )
         messages = cursor.fetchall()
 
+        
+        cursor.execute(
+            "SELECT id FROM message WHERE session_id = %s ORDER BY created_at DESC LIMIT 1",
+            (session_id,)
+        )
+        latest_msg = cursor.fetchone()
+        latest_msg_id = latest_msg['id'] if latest_msg else None
+
         return jsonify({
             'session_id': session_id,
+            'latest_message_id': latest_msg_id,
             'messages': messages
         }), 200
 
@@ -224,13 +245,6 @@ def get_messages():
     finally:
         cursor.close()
         conn.close()
-    return jsonify({
-    'user_message': data['content'],
-    'chatbot_reply': reply,
-    'session_id': session_id,
-    'title': title if message_count == 1 else None
-}), 201
-
 
 @main.route('/chat/sessions', methods=['GET'])
 def list_session():
@@ -253,7 +267,7 @@ def list_session():
 
     try:
         cursor.execute(
-            "SELECT id, title, created_at FROM session WHERE user_id = %s ORDER BY created_at DESC",
+            "SELECT id, title, created_at, is_active FROM session WHERE user_id = %s ORDER BY created_at DESC",
             (user_id,)
         )
         sessions = cursor.fetchall()
@@ -304,7 +318,7 @@ def create_new_session():
         cursor.close()
         conn.close()
 
-@main.route('/chat/sessions/<int:session_id>', methods=['DELETE'])
+@main.route('/chat/sessions/<int:session_id>', methods=['DELETE']) #soft delete
 def delete_session(session_id):
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
@@ -320,14 +334,16 @@ def delete_session(session_id):
             return jsonify({'error': 'Invalid token format'}), 401
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM session WHERE id = %s AND user_id = %s", (session_id, user_id))
-        session = cursor.fetchone() 
+        cursor.execute("SELECT id FROM session WHERE id = %s AND user_id = %s AND is_active = TRUE", (session_id, user_id))
+        session = cursor.fetchone()
+
         if not session:
             return jsonify({'error': 'Session not found or unauthorized'}), 403
-        cursor.execute("DELETE FROM session WHERE id = %s AND user_id = %s", (session_id, user_id))
-
+        
+        cursor.execute("UPDATE session SET is_active =FALSE WHERE id = %s AND user_id = %s", (session_id, user_id))
         conn.commit()
-        return jsonify({'message': 'Session deleted successfully'}), 200
+        return jsonify({'message': 'Session marked inactive'}), 200
+    
     except jwt.ExpiredSignatureError:
         return jsonify({'error': 'Token expired'}), 401
     except jwt.InvalidTokenError:
