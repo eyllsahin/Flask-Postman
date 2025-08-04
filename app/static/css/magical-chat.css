@@ -1,0 +1,176 @@
+/* Magical Forest Theme Overrides */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
+
+:root {
+    --primary-color: #2c5530;
+    --accent-color: #8b4513;
+    --highlight: #c0d8c0;
+    --text-light: #f0f7f0;
+    --fairy-glow: rgba(255, 255, 255, 0.15);
+    --magical-shadow: 0 0 20px rgba(144, 238, 144, 0.2);
+    --chat-user: #ffd7aa;
+    --chat-bot: #e8f4f8;
+}
+
+body {
+    background: linear-gradient(135deg, #1a472a, #2c5530) !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--fairy-glow) !important;
+    box-shadow: var(--magical-shadow) !important;
+}
+
+.sidebar {
+    background: rgba(44, 85, 48, 0.4) !important;
+    border-right: 1px solid var(--fairy-glow) !important;
+}
+
+.sidebar h2 {
+    font-family: 'Cinzel', serif !important;
+    color: var(--text-light) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+#newSessionBtn {
+    background: var(--accent-color) !important;
+    color: var(--text-light) !important;
+    font-family: 'Cinzel', serif !important;
+    box-shadow: 0 0 15px rgba(139, 69, 19, 0.2);
+}
+
+#newSessionBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3) !important;
+}
+
+.session-item {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid var(--fairy-glow) !important;
+    color: var(--text-light) !important;
+}
+
+.session-item:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: translateX(5px);
+}
+
+.session-item.active {
+    background: var(--accent-color) !important;
+}
+
+.chat-area {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+#chatTitle {
+    font-family: 'Cinzel', serif !important;
+    color: var(--text-light) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.message {
+    animation: messageAppear 0.3s ease-out;
+}
+
+.message.user {
+    background: var(--chat-user) !important;
+    box-shadow: 0 4px 15px rgba(255, 215, 170, 0.2) !important;
+}
+
+.message.bot {
+    background: var(--chat-bot) !important;
+    box-shadow: 0 4px 15px rgba(232, 244, 248, 0.2) !important;
+}
+
+#messageInput {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid var(--fairy-glow) !important;
+    color: var(--text-light) !important;
+}
+
+#messageInput:focus {
+    border-color: var(--highlight) !important;
+    box-shadow: 0 0 15px rgba(192, 216, 192, 0.3) !important;
+}
+
+button[type="submit"] {
+    background: var(--accent-color) !important;
+    color: var(--text-light) !important;
+    font-family: 'Cinzel', serif !important;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3) !important;
+}
+
+/* Floating Fairies */
+.fairy {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: #FFE5B4;
+    border-radius: 50%;
+    filter: blur(0.5px);
+    box-shadow: 
+        0 0 10px #FFE5B4,
+        0 0 20px #FFE5B4,
+        0 0 30px #FFE5B4,
+        0 0 40px #FFB6C1;
+    animation: float 12s infinite ease-in-out;
+    opacity: 0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    25% {
+        transform: translate(20px, -20px) scale(1.2);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(40px, 0) scale(1);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translate(20px, 20px) scale(1.2);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

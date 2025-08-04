@@ -1,0 +1,178 @@
+/* Magical Forest Theme for Fraude Chat Application */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
+
+:root {
+    --primary-color: #2c5530;  /* Deep Forest Green */
+    --accent-color: #8b4513;   /* Woodland Brown */
+    --highlight: #c0d8c0;      /* Soft Moss */
+    --text-light: #f0f7f0;     /* Moonlight */
+    --fairy-glow: rgba(255, 255, 255, 0.15);
+    --magical-shadow: 0 0 20px rgba(144, 238, 144, 0.2);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a472a, #2c5530);
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Magical Forest Background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+/* Floating Fairies Animation */
+.fairy {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: #FFE5B4;
+    border-radius: 50%;
+    filter: blur(0.5px);
+    box-shadow: 
+        0 0 10px #FFE5B4,
+        0 0 20px #FFE5B4,
+        0 0 30px #FFE5B4,
+        0 0 40px #FFB6C1;
+    animation: float 12s infinite ease-in-out;
+    opacity: 0;
+    z-index: 1000;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0) scale(1);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(50vh) translateX(100px) scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.app-title {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    letter-spacing: 4px;
+}
+
+.login-form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: var(--magical-shadow);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--fairy-glow);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--fairy-glow);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--highlight);
+    box-shadow: 0 0 15px rgba(192, 216, 192, 0.3);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    margin-top: 1rem;
+}
+
+.submit-btn:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.register-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.register-link a {
+    color: var(--highlight);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.register-link a:hover {
+    text-shadow: 0 0 10px var(--highlight);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-title {
+        font-size: 2.5rem;
+    }
+    
+    .login-form {
+        padding: 2rem;
+    }
+}

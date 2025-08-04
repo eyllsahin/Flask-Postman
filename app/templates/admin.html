@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | Sessions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Admin Panel - Sessions</h2>
+            <button id="logoutBtn">Logout</button>
+        </div>
+
+        <div id="sessionList" class="chat-messages"></div>
+
+        <div class="chat-input" style="justify-content: space-between;">
+            <button id="prevPageBtn">Previous</button>
+            <span id="pageInfo"></span>
+            <button id="nextPageBtn">Next</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

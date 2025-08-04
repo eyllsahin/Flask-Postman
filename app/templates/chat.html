@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraude - Magical Chat Realm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/magical-chat.css') }}">
+</head>
+<body>
+    <!-- Floating Fairies -->
+    <div class="fairy" style="left: 5%; top: 10%; animation-delay: 0s;"></div>
+    <div class="fairy" style="left: 15%; top: 20%; animation-delay: 2s;"></div>
+    <div class="fairy" style="left: 25%; top: 35%; animation-delay: 4s;"></div>
+    <div class="fairy" style="left: 45%; top: 15%; animation-delay: 6s;"></div>
+    <div class="fairy" style="left: 65%; top: 25%; animation-delay: 8s;"></div>
+    <div class="fairy" style="left: 75%; top: 40%; animation-delay: 10s;"></div>
+    <div class="fairy" style="left: 85%; top: 30%; animation-delay: 12s;"></div>
+    <div class="fairy" style="left: 95%; top: 45%; animation-delay: 14s;"></div>
+
+    <div class="container">
+        <!-- Enchanted Sidebar -->
+        <div class="sidebar">
+            <h2>✧ Magic Realms ✧</h2>
+            <button id="newSessionBtn">✧ New Enchantment ✧</button>
+            <ul id="sessionList"></ul>
+        </div>
+
+        <!-- Magical Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div id="chatTitle">✧ New Enchantment ✧</div>
+                <button id="logoutBtn">Leave Realm</button>
+            </div>
+
+            <div id="chatMessages"></div>
+
+            <form id="chatForm">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Cast your message into the magical realm..." 
+                    autocomplete="off" 
+                    required 
+                />
+                <button type="submit">
+                    <span>✧ Cast ✧</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
