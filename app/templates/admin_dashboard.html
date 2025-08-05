@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Magical Forest{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>✧ Magical Forest Administration ✧</h1>
+        <button id="logoutBtn" class="admin-btn">Leave Realm</button>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="users">Users</button>
+        <button class="tab-btn" data-tab="sessions">Chat Sessions</button>
+    </div>
+
+    <div id="users" class="tab-content active">
+        <div class="search-bar">
+            <input type="text" id="userSearch" placeholder="Search users...">
+        </div>
+        <div class="user-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Joined</th>
+                        <th>Sessions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="sessions" class="tab-content">
+        <div class="search-bar">
+            <input type="text" id="sessionSearch" placeholder="Search sessions...">
+        </div>
+        <div class="session-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>User</th>
+                        <th>Created</th>
+                        <th>Messages</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionTableBody">
+                    <!-- Sessions will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chat View Modal -->
+<div id="chatModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Chat History</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="modalChatMessages" class="chat-messages"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

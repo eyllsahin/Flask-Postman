@@ -8,6 +8,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1;
     const limit = 10;
 
+    // Safely format date strings for display
+    function formatDate(dateStr) {
+        try {
+            // Check if it's already a valid date string format
+            if (!dateStr) return 'N/A';
+            
+            // Try to format the date - if it's a simple YYYY-MM-DD string, display it directly
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            
+            // Otherwise try to create a Date object and format it
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) {
+                return dateStr; // Just return the original string if it's not a valid date
+            }
+            return date.toLocaleString();
+        } catch (e) {
+            console.error('Date formatting error:', e);
+            return dateStr; // Return the original string in case of errors
+        }
+    }
+
     if (!localStorage.getItem('token')) {
         window.location.href = '/login';
         return;
@@ -37,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>User:</strong> ${session.username} |
                     <strong>Title:</strong> ${session.title || 'N/A'} |
                     <strong>Active:</strong> ${session.is_active ? 'Yes' : 'No'}<br>
-                    <small>${new Date(session.created_at).toLocaleString()}</small>
+                    <small>${formatDate(session.created_at)}</small>
                 `;
                 sessionList.appendChild(div);
             });

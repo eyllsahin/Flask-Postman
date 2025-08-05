@@ -2,10 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Chatbot{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fraude - Mystical Chat{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/magical-common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fraude-theme.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5530;
+            --accent-color: #8b4513;
+            --highlight: #c0d8c0;
+            --text-light: #f0f7f0;
+            --fairy-glow: rgba(255, 255, 255, 0.15);
+            --magical-shadow: 0 0 20px rgba(144, 238, 144, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a472a, #2c5530);
+            min-height: 100vh;
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Magical Forest Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+    {% block styles %}{% endblock %}
 </head>
 <body>
+    <!-- Default fairy lights -->
+    <div class="fairy" style="top: 10%; left: 5%;"></div>
+    <div class="fairy" style="top: 30%; left: 15%;"></div>
+    <div class="fairy" style="top: 60%; left: 8%;"></div>
+    <div class="fairy" style="top: 20%; left: 90%;"></div>
+    <div class="fairy" style="top: 80%; left: 85%;"></div>
+    <div class="fairy" style="top: 50%; left: 95%;"></div>
+    
+    <!-- Snake decorations -->
+    <div class="snake-decoration">
+        <div class="snake"></div>
+        <div class="snake"></div>
+        <div class="snake"></div>
+    </div>
+    
     {% block content %}{% endblock %}
+    
+    <script>
+        // Initialize common functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animated fairy lights
+            function createFairies(count) {
+                const container = document.body;
+                for (let i = 0; i < count; i++) {
+                    const fairy = document.createElement('div');
+                    fairy.className = 'fairy';
+                    fairy.style.top = Math.random() * 100 + '%';
+                    fairy.style.left = Math.random() * 100 + '%';
+                    fairy.style.animationDuration = 10 + Math.random() * 20 + 's';
+                    fairy.style.animationDelay = Math.random() * 5 + 's';
+                    container.appendChild(fairy);
+                }
+            }
+            
+            // Create additional fairies
+            createFairies(5);
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Magical Forest{% endblock %}
+
+{% block content %}
+<!-- Add fairy lights -->
+<div class="fairy" style="top: 10%; left: 5%;"></div>
+<div class="fairy" style="top: 30%; left: 15%;"></div>
+<div class="fairy" style="top: 60%; left: 8%;"></div>
+<div class="fairy" style="top: 20%; left: 90%;"></div>
+<div class="fairy" style="top: 80%; left: 85%;"></div>
+<div class="fairy" style="top: 50%; left: 95%;"></div>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-title-section">
+            <img src="{{ url_for('static', filename='img/fraudeLogo.svg') }}" alt="Fraude" class="fraude-logo" style="max-width: 120px; margin-bottom: 15px;">
+            <h1>✧ Magical Forest Administration ✧</h1>
+        </div>
+        <button id="logoutBtn" class="magical-btn">Leave Realm</button>
+    </div>
+
+    <div class="stats-cards">
+        <div class="stat-card">
+            <h3>Total Users</h3>
+            <div class="stat-number">{{ stats.total_users }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Active Sessions</h3>
+            <div class="stat-number">{{ stats.active_sessions }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Messages</h3>
+            <div class="stat-number">{{ stats.total_messages }}</div>
+        </div>
+    </div>
+
+    <div class="user-section">
+        <h2>✧ User Activity Overview ✧</h2>
+        {% for user in users %}
+        <div class="user-card">
+            <div class="user-header">
+                <button class="user-name-btn" data-user-id="{{ user.id }}">
+                    <h3>{{ user.username }}</h3>
+                    <div class="tooltip">Click to view user details</div>
+                </button>
+                <span class="user-email">{{ user.email }}</span>
+                <span class="user-id">ID: {{ user.id }}</span>
+                <span class="join-date">Joined: {{ user.created_at }}</span>
+            </div>
+            
+            <div class="sessions-list">
+                <h4>Chat Sessions</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Title</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Message Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in user.sessions %}
+                        <tr class="{{ 'inactive' if not session.is_active else '' }}">
+                            <td>{{ session.id }}</td>
+                            <td class="session-title">{{ session.title | e | truncate(50, true, '...') }}</td>
+                            <td>{{ session.created_at }}</td>
+                            <td>
+                                {% if session.is_active %}
+                                <span class="status active">Active</span>
+                                {% else %}
+                                <span class="status inactive">Deleted</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ session.message_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/magical-common.css') }}">
+<style>
+.admin-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(192, 216, 192, 0.05) 0%, rgba(44, 85, 48, 0.1) 100%);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.admin-title-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-title-section .fraude-logo {
+    background-color: rgba(250, 246, 230, 0.9);
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 0 15px rgba(192, 216, 192, 0.3);
+    border: 2px solid rgba(192, 216, 192, 0.2);
+}
+
+.admin-header h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 0 15px rgba(192, 216, 192, 0.5);
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.admin-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--highlight), transparent);
+}
+
+.magical-btn {
+    background: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.magical-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.magical-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.magical-btn:hover::before {
+    opacity: 0.5;
+    animation: shine 1.5s infinite linear;
+}
+
+@keyframes shine {
+    0% {
+        transform: rotate(45deg) translateX(-100%);
+    }
+    100% {
+        transform: rotate(45deg) translateX(100%);
+    }
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.8rem 1.5rem;
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(135deg, rgba(192, 216, 192, 0.1) 0%, rgba(44, 85, 48, 0.1) 100%);
+    z-index: -1;
+    border-radius: 20px;
+    transform: scale(0.95);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card:hover::before {
+    transform: scale(1);
+}
+
+.stat-card h3 {
+    margin: 0 0 1rem 0;
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 0 10px rgba(192, 216, 192, 0.5);
+    position: relative;
+    display: inline-block;
+}
+
+.stat-number::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--highlight), transparent);
+}
+
+.user-section {
+    position: relative;
+}
+
+.user-section h2 {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-align: center;
+    margin: 2rem 0;
+    text-shadow: 0 0 10px rgba(192, 216, 192, 0.3);
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.user-section h2::before,
+.user-section h2::after {
+    content: '✧';
+    display: inline-block;
+    margin: 0 15px;
+    color: var(--highlight);
+    opacity: 0.8;
+}
+
+.user-card {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.2);
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-card:hover {
+    box-shadow: 0 8px 25px rgba(192, 216, 192, 0.15);
+    transform: translateY(-3px);
+}
+
+.user-header {
+    background: linear-gradient(135deg, var(--accent-color), rgba(139, 69, 19, 0.8));
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.user-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="rgba(255,255,255,0.03)" d="M13 13L88 13L88 88L13 88Z"/></svg>');
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.user-name-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.user-name-btn:hover {
+    transform: translateY(-2px);
+}
+
+.user-name-btn h3 {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    color: var(--text-light) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 1.4rem;
+    position: relative;
+    z-index: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 250px;
+}
+
+.user-name-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--highlight);
+    transition: width 0.3s ease;
+}
+
+.user-name-btn:hover::after {
+    width: 100%;
+}
+
+.tooltip {
+    visibility: hidden;
+    background-color: rgba(44, 85, 48, 0.9);
+    color: var(--text-light);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 2;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(44, 85, 48, 0.9) transparent transparent transparent;
+}
+
+.user-name-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.user-email, .user-id, .join-date {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 300px;
+}
+
+.join-date {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+}
+
+.sessions-list {
+    padding: 1.8rem;
+    position: relative;
+}
+
+.sessions-list h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+.sessions-list h4::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--highlight), transparent);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1.2rem;
+    table-layout: fixed; /* Fixed table layout for better control */
+}
+
+th, td {
+    padding: 1rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+th {
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    padding-bottom: 0.7rem;
+}
+
+/* Column width control */
+th:nth-child(1), td:nth-child(1) { /* Session ID */
+    width: 12%;
+}
+
+th:nth-child(2), td:nth-child(2) { /* Title */
+    width: 40%;
+    max-width: 200px;
+}
+
+th:nth-child(3), td:nth-child(3) { /* Created */
+    width: 18%;
+}
+
+th:nth-child(4), td:nth-child(4) { /* Status */
+    width: 15%;
+}
+
+th:nth-child(5), td:nth-child(5) { /* Message Count */
+    width: 15%;
+}
+
+.session-title {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.session-title:hover {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: none;
+}
+
+tr {
+    transition: all 0.2s ease;
+}
+
+tr:hover:not(thead tr) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+tr.inactive {
+    opacity: 0.7;
+}
+
+.status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status.active {
+    background: rgba(144, 238, 144, 0.15);
+    color: #90EE90;
+    border: 1px solid rgba(144, 238, 144, 0.3);
+}
+
+.status.inactive {
+    background: rgba(255, 99, 71, 0.15);
+    color: #FF6347;
+    border: 1px solid rgba(255, 99, 71, 0.3);
+}
+
+/* Magical scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 69, 19, 0.8);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .user-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    table {
+        font-size: 0.9rem;
+    }
+    
+    th, td {
+        padding: 0.5rem 0.3rem;
+    }
+    
+    .session-title {
+        max-width: 120px;
+    }
+}
+
+/* Ensure text is always visible */
+.user-card * {
+    color: inherit !important;
+    opacity: 1 !important;
+}
+
+.user-header * {
+    visibility: visible !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/';
+    });
+    
+    // Add user name button click handlers
+    const userNameBtns = document.querySelectorAll('.user-name-btn');
+    userNameBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-user-id');
+            if (userId) {
+                window.location.href = `/admin/user/${userId}/view`;
+            }
+        });
+    });
+    
+    // Add animated fairy lights
+    function createFairies(count) {
+        const container = document.body;
+        for (let i = 0; i < count; i++) {
+            const fairy = document.createElement('div');
+            fairy.className = 'fairy';
+            fairy.style.top = Math.random() * 100 + '%';
+            fairy.style.left = Math.random() * 100 + '%';
+            fairy.style.animationDuration = 10 + Math.random() * 20 + 's';
+            fairy.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(fairy);
+        }
+    }
+    
+    // Create additional fairies
+    createFairies(8);
+    
+    // Add shimmer effect to stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.boxShadow = '0 0 20px rgba(192, 216, 192, 0.3)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.boxShadow = '';
+        });
+    });
+    
+    // Add sparkle to user cards on hover
+    const userCards = document.querySelectorAll('.user-card');
+    userCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+            card.style.boxShadow = '0 8px 25px rgba(192, 216, 192, 0.2)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            card.style.boxShadow = '';
+        });
+    });
+});
+</script>
+{% endblock %}

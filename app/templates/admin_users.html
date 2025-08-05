@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Add fairy lights -->
+<div class="fairy" style="top: 15%; left: 10%;"></div>
+<div class="fairy" style="top: 25%; left: 20%;"></div>
+<div class="fairy" style="top: 70%; left: 5%;"></div>
+<div class="fairy" style="top: 30%; left: 95%;"></div>
+<div class="fairy" style="top: 85%; left: 80%;"></div>
+<div class="fairy" style="top: 45%; left: 90%;"></div>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>✧ Magical User Management ✧</h1>
+        <button id="backToOverview" class="magical-btn">Return to Overview</button>
+    </div>
+    
+    <div class="user-list-container">
+        <div class="user-list">
+            <table class="magical-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="magical-row">
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at }}</td>
+                        <td>
+                            <button class="magical-action-btn view-chats" data-userid="{{ user.id }}">View Enchanted Chats</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/magical-common.css') }}">
+<style>
+.admin-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(192, 216, 192, 0.05) 0%, rgba(44, 85, 48, 0.1) 100%);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.admin-header h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 0 15px rgba(192, 216, 192, 0.5);
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.admin-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--highlight), transparent);
+}
+
+.magical-btn {
+    background: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.magical-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.magical-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.magical-btn:hover::before {
+    opacity: 0.5;
+    animation: shine 1.5s infinite linear;
+}
+
+.user-list-container {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.magical-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.magical-table th {
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    padding: 1.2rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid rgba(192, 216, 192, 0.2);
+}
+
+.magical-table td {
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.magical-row {
+    transition: all 0.3s ease;
+}
+
+.magical-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.magical-action-btn {
+    background: rgba(139, 69, 19, 0.6);
+    color: var(--text-light);
+    border: 1px solid rgba(192, 216, 192, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.magical-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.5s ease;
+    z-index: -1;
+}
+
+.magical-action-btn:hover {
+    box-shadow: 0 0 15px rgba(192, 216, 192, 0.5);
+    transform: translateY(-2px);
+    background: rgba(139, 69, 19, 0.8);
+}
+
+.magical-action-btn:hover::before {
+    left: 100%;
+    transition: 0.5s;
+}
+
+@keyframes shine {
+    0% {
+        transform: rotate(45deg) translateX(-100%);
+    }
+    100% {
+        transform: rotate(45deg) translateX(100%);
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Add back to overview button functionality
+    const backBtn = document.getElementById('backToOverview');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.location.href = '/admin';
+        });
+    }
+    
+    // Add animated fairy lights
+    function createFairies(count) {
+        const container = document.body;
+        for (let i = 0; i < count; i++) {
+            const fairy = document.createElement('div');
+            fairy.className = 'fairy';
+            fairy.style.top = Math.random() * 100 + '%';
+            fairy.style.left = Math.random() * 100 + '%';
+            fairy.style.animationDuration = 10 + Math.random() * 20 + 's';
+            fairy.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(fairy);
+        }
+    }
+    
+    // Create additional fairies
+    createFairies(8);
+});
+</script>
+{% endblock %}

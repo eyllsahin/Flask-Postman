@@ -2,20 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register | ChatBot</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Fraude - Magical Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <h1>Create Account</h1>
-        <form id="registerForm">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-            <button type="submit">Register</button>
+    
+    <div class="fairy" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="fairy" style="left: 20%; animation-delay: 2s;"></div>
+    <div class="fairy" style="left: 35%; animation-delay: 4s;"></div>
+    <div class="fairy" style="left: 50%; animation-delay: 6s;"></div>
+    <div class="fairy" style="left: 65%; animation-delay: 8s;"></div>
+    <div class="fairy" style="left: 80%; animation-delay: 10s;"></div>
+    <div class="fairy" style="left: 90%; animation-delay: 12s;"></div>
+
+    <div class="container">
+        <h1 class="app-title">✧ Fraude ✧</h1>
+        <form id="registerForm" class="login-form">
+            <div class="form-group">
+                <label for="email">Magical Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Enchanted Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Secret Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Secret</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <button type="submit" class="submit-btn">Join the Realm</button>
+            <div class="register-link">
+                <p>Already have magical powers? <a href="/login">Enter the realm</a></p>
+            </div>
         </form>
-        <p>Already have an account? <a href="/">Login</a></p>
     </div>
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
 </body>

@@ -1,0 +1,217 @@
+/* Magical Forest Theme for Admin Panel */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
+
+:root {
+    --primary-color: #2c5530;
+    --accent-color: #8b4513;
+    --highlight: #c0d8c0;
+    --text-light: #f0f7f0;
+    --fairy-glow: rgba(255, 255, 255, 0.15);
+    --magical-shadow: 0 0 20px rgba(144, 238, 144, 0.2);
+    --card-bg: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #1a472a, #2c5530);
+    min-height: 100vh;
+    color: var(--text-light);
+}
+
+/* Magical Forest Background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* Floating Fairies */
+.fairy {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: #FFE5B4;
+    border-radius: 50%;
+    filter: blur(0.5px);
+    box-shadow: 
+        0 0 10px #FFE5B4,
+        0 0 20px #FFE5B4,
+        0 0 30px #FFE5B4,
+        0 0 40px #FFB6C1;
+    animation: float 12s infinite ease-in-out;
+    opacity: 0;
+    z-index: 1000;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    25% {
+        transform: translate(20px, -20px) scale(1.2);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(40px, 0) scale(1);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translate(20px, 20px) scale(1.2);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+}
+
+.container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.app-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--text-light);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.magical-btn {
+    background: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.magical-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid var(--fairy-glow);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--magical-shadow);
+}
+
+.stat-card h3 {
+    font-family: 'Cinzel', serif;
+    margin-bottom: 1rem;
+    color: var(--highlight);
+}
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.sessions-container {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid var(--fairy-glow);
+}
+
+.sessions-container h2 {
+    font-family: 'Cinzel', serif;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--highlight);
+}
+
+.sessions-list {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.session-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--fairy-glow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.session-item:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination span {
+    font-family: 'Cinzel', serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--highlight);
+}

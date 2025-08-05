@@ -1,5 +1,5 @@
 /* Magical Forest Theme for Fraude Chat Application */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
+@import url('magical-common.css');
 
 :root {
     --primary-color: #2c5530;  /* Deep Forest Green */
@@ -35,37 +35,9 @@ body::before {
     z-index: -1;
 }
 
-/* Floating Fairies Animation */
+/* Additional Fairy Customizations */
 .fairy {
-    position: fixed;
-    width: 6px;
-    height: 6px;
-    background: #FFE5B4;
-    border-radius: 50%;
-    filter: blur(0.5px);
-    box-shadow: 
-        0 0 10px #FFE5B4,
-        0 0 20px #FFE5B4,
-        0 0 30px #FFE5B4,
-        0 0 40px #FFB6C1;
-    animation: float 12s infinite ease-in-out;
-    opacity: 0;
-    z-index: 1000;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(100vh) translateX(0) scale(1);
-        opacity: 0;
-    }
-    50% {
-        transform: translateY(50vh) translateX(100px) scale(1.2);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(0) translateX(0) scale(1);
-        opacity: 0;
-    }
+    pointer-events: none !important;
 }
 
 .container {

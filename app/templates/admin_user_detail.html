@@ -1,0 +1,683 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - User Details{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>✧ User Detail: {{ user.username }} ✧</h1>
+        <button id="backToOverview" class="magical-btn">Return to Overview</button>
+    </div>
+
+    <div class="user-profile-section">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h2>{{ user.username }}</h2>
+                <span class="user-status active">Active</span>
+            </div>
+            <div class="profile-info">
+                <div class="info-row">
+                    <span class="info-label">User ID:</span>
+                    <span class="info-value">{{ user.id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Joined:</span>
+                    <span class="info-value">{{ user.created_at }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card-container">
+            <div class="stat-card">
+                <h3>Total Sessions</h3>
+                <div class="stat-number">{{ sessions|length }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Messages</h3>
+                <div class="stat-number">{{ message_stats.total_messages if message_stats.total_messages else 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>First Message</h3>
+                <div class="stat-date">{{ message_stats.first_message if message_stats.first_message else 'N/A' }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Last Message</h3>
+                <div class="stat-date">{{ message_stats.last_message if message_stats.last_message else 'N/A' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-sessions-section">
+        <h2>✧ Chat History ✧</h2>
+        
+        <div class="sessions-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Title</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Messages</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr class="{{ 'inactive' if not session.is_active else '' }}">
+                        <td>{{ session.id }}</td>
+                        <td>{{ session.title | e | truncate(50, true, '...') }}</td>
+                        <td>{{ session.created_at }}</td>
+                        <td>
+                            {% if session.is_active %}
+                            <span class="status active">Active</span>
+                            {% else %}
+                            <span class="status inactive">Deleted</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ session.message_count }}</td>
+                        <td>
+                            <button class="view-session-btn magical-action-btn" data-session-id="{{ session.id }}">
+                                View Messages
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for viewing session messages -->
+    <div id="messageModal" class="magical-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Session Messages</h2>
+            <div id="messagesContainer" class="messages-container">
+                <!-- Messages will be loaded here -->
+                <div class="loading-spinner">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+:root {
+    --primary-color: #2c5530;
+    --accent-color: #8b4513;
+    --highlight: #c0d8c0;
+    --text-light: #f0f7f0;
+}
+
+.admin-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(192, 216, 192, 0.05) 0%, rgba(44, 85, 48, 0.1) 100%);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.admin-header h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 0 15px rgba(192, 216, 192, 0.5);
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.admin-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--highlight), transparent);
+}
+
+.magical-btn {
+    background: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.magical-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.magical-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.magical-btn:hover::before {
+    opacity: 0.5;
+    animation: shine 1.5s infinite linear;
+}
+
+.user-profile-section {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, var(--accent-color), rgba(139, 69, 19, 0.8));
+    padding: 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-header h2 {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.user-status.active {
+    background: rgba(144, 238, 144, 0.15);
+    color: #90EE90;
+    border: 1px solid rgba(144, 238, 144, 0.3);
+}
+
+.profile-info {
+    padding: 1.5rem;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--highlight);
+    width: 100px;
+}
+
+.info-value {
+    color: var(--text-light);
+    flex: 1;
+}
+
+.stats-card-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(192, 216, 192, 0.2);
+}
+
+.stat-card h3 {
+    margin: 0 0 1rem 0;
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.stat-number, .stat-date {
+    font-size: 2rem;
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-shadow: 0 0 10px rgba(192, 216, 192, 0.5);
+}
+
+.stat-date {
+    font-size: 1.4rem;
+}
+
+.user-sessions-section {
+    margin-top: 3rem;
+    position: relative;
+}
+
+.user-sessions-section h2 {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px rgba(192, 216, 192, 0.3);
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.user-sessions-section h2::before,
+.user-sessions-section h2::after {
+    content: '✧';
+    display: inline-block;
+    margin: 0 15px;
+    color: var(--highlight);
+    opacity: 0.8;
+}
+
+.sessions-list {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.2);
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; /* Fixed table layout for better control */
+}
+
+th, td {
+    padding: 1rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+th {
+    font-family: 'Cinzel', serif;
+    color: var(--highlight);
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    padding-bottom: 0.7rem;
+}
+
+/* Column width control for user detail page */
+th:nth-child(1), td:nth-child(1) { /* Session ID */
+    width: 15%;
+}
+
+th:nth-child(2), td:nth-child(2) { /* Title */
+    width: 35%;
+    max-width: 180px;
+}
+
+th:nth-child(3), td:nth-child(3) { /* Created */
+    width: 18%;
+}
+
+th:nth-child(4), td:nth-child(4) { /* Status */
+    width: 16%;
+}
+
+th:nth-child(5), td:nth-child(5) { /* Messages */
+    width: 12%;
+}
+
+th:nth-child(6), td:nth-child(6) { /* Actions */
+    width: 4%;
+}
+
+tr {
+    transition: all 0.2s ease;
+}
+
+tr:hover:not(thead tr) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+tr.inactive {
+    opacity: 0.7;
+}
+
+.status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status.active {
+    background: rgba(144, 238, 144, 0.15);
+    color: #90EE90;
+    border: 1px solid rgba(144, 238, 144, 0.3);
+}
+
+.status.inactive {
+    background: rgba(255, 99, 71, 0.15);
+    color: #FF6347;
+    border: 1px solid rgba(255, 99, 71, 0.3);
+}
+
+.magical-action-btn {
+    background: rgba(139, 69, 19, 0.6);
+    color: var(--text-light);
+    border: 1px solid rgba(192, 216, 192, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.magical-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.5s ease;
+    z-index: -1;
+}
+
+.magical-action-btn:hover {
+    box-shadow: 0 0 15px rgba(192, 216, 192, 0.5);
+    transform: translateY(-2px);
+    background: rgba(139, 69, 19, 0.8);
+}
+
+.magical-action-btn:hover::before {
+    left: 100%;
+    transition: 0.5s;
+}
+
+/* Modal styles */
+.magical-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    margin: 5% auto;
+    width: 80%;
+    max-width: 900px;
+    background: linear-gradient(135deg, rgba(44, 85, 48, 0.9), rgba(26, 71, 42, 0.9));
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid rgba(192, 216, 192, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 2rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+    color: var(--highlight);
+    transform: rotate(90deg);
+}
+
+#modalTitle {
+    font-family: 'Cinzel', serif;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(192, 216, 192, 0.3);
+}
+
+.messages-container {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(192, 216, 192, 0.2);
+}
+
+.message-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.message-user {
+    background: rgba(139, 69, 19, 0.4);
+    border: 1px solid rgba(139, 69, 19, 0.6);
+    margin-right: 2rem;
+    margin-left: 0;
+}
+
+.message-bot {
+    background: rgba(44, 85, 48, 0.4);
+    border: 1px solid rgba(44, 85, 48, 0.6);
+    margin-left: 2rem;
+    margin-right: 0;
+}
+
+.message-sender {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--highlight);
+    font-family: 'Cinzel', serif;
+}
+
+.message-content {
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.message-time {
+    text-align: right;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.5rem;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: var(--highlight);
+}
+
+@keyframes shine {
+    0% {
+        transform: rotate(45deg) translateX(-100%);
+    }
+    100% {
+        transform: rotate(45deg) translateX(100%);
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('backToOverview');
+    const sessionBtns = document.querySelectorAll('.view-session-btn');
+    const modal = document.getElementById('messageModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const closeModal = document.querySelector('.close-modal');
+    
+    backBtn.addEventListener('click', () => {
+        window.location.href = '/admin';
+    });
+    
+    // View session messages
+    sessionBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const sessionId = btn.getAttribute('data-session-id');
+            const sessionTitle = btn.closest('tr').querySelector('td:nth-child(2)').textContent;
+            
+            modal.style.display = 'block';
+            modalTitle.textContent = `Session: ${sessionTitle} (ID: ${sessionId})`;
+            messagesContainer.innerHTML = '<div class="loading-spinner">Loading messages...</div>';
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    messagesContainer.innerHTML = '<div class="error-message">Authentication error. Please log in again.</div>';
+                    return;
+                }
+                
+                const response = await fetch(`/debug/session/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    messagesContainer.innerHTML = `<div class="error-message">Error: ${data.error || 'Failed to load messages'}</div>`;
+                    return;
+                }
+                
+                if (!data.messages || data.messages.length === 0) {
+                    messagesContainer.innerHTML = '<div class="empty-message">No messages found in this session.</div>';
+                    return;
+                }
+                
+                // Display messages
+                let messagesHTML = '';
+                data.messages.forEach(msg => {
+                    const messageClass = msg.sender === 'user' ? 'message-user' : 'message-bot';
+                    const senderName = msg.sender === 'user' ? 'User' : 'Magic Bot';
+                    
+                    messagesHTML += `
+                        <div class="message-item ${messageClass}">
+                            <div class="message-sender">${senderName}</div>
+                            <div class="message-content">${msg.content}</div>
+                            <div class="message-time">${msg.created_at}</div>
+                        </div>
+                    `;
+                });
+                
+                messagesContainer.innerHTML = messagesHTML;
+                
+            } catch (error) {
+                console.error('Error fetching session messages:', error);
+                messagesContainer.innerHTML = '<div class="error-message">Failed to load messages. Please try again.</div>';
+            }
+        });
+    });
+    
+    // Close modal
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

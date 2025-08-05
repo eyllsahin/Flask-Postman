@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Fraude's Chat{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>✧ Snake Charming Failed ✧</h1>
+    <div class="error-message">
+        <div class="snake-error">
+            <div class="snake-coil"></div>
+        </div>
+        <p>{{ error_message if error_message else "Ssssomething went wrong with Fraude's charmsss." }}</p>
+    </div>
+    <button onclick="window.location.href='/'" class="fraude-btn return-btn">Return to Fraude'ssss Lair</button>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+:root {
+    --fraude-primary: #124015;
+    --fraude-secondary: #45814e;
+    --fraude-accent: #8fa646;
+    --fraude-highlight: #ecf0c9;
+    --fraude-dark: #0a2e0e;
+    --fraude-text: #e8f0e0;
+}
+
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+    text-align: center;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: rgba(10, 46, 14, 0.85);
+    border-radius: 20px;
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--fraude-highlight);
+    text-shadow: 0 0 15px rgba(143, 166, 70, 0.7);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.error-message {
+    background: rgba(18, 64, 21, 0.7);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid var(--fraude-secondary);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.snake-error {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.snake-coil {
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,20 C65,20 80,35 80,50 C80,65 65,80 50,80 C35,80 20,65 20,50 C20,35 35,20 50,20 Z' fill='none' stroke='%238fa646' stroke-width='8'/%3E%3Cpath d='M40,40 L60,60' stroke='%238fa646' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='40' r='5' fill='%23ecf0c9'/%3E%3Ccircle cx='60' cy='60' r='5' fill='%23ecf0c9'/%3E%3C/svg%3E") no-repeat center center;
+    animation: slither 4s infinite alternate;
+}
+
+.error-message p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: var(--fraude-text);
+    font-family: 'Georgia', serif;
+    font-style: italic;
+}
+
+.fraude-btn {
+    background: var(--fraude-accent);
+    color: var(--fraude-dark);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.fraude-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(143, 166, 70, 0.5);
+}
+
+.fraude-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(236, 240, 201, 0.3) 0%, transparent 60%);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.fraude-btn:hover::before {
+    opacity: 0.5;
+    animation: slither 1.5s infinite alternate;
+}
+
+@keyframes slither {
+    0%, 100% {
+        transform: rotate(-5deg) scale(0.95);
+    }
+    50% {
+        transform: rotate(5deg) scale(1.05);
+    }
+}
+</style>
+{% endblock %}

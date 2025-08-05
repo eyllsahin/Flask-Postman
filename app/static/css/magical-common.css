@@ -1,0 +1,110 @@
+/* Magical Common Elements */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
+
+/* Enhanced Fairy Animation */
+.fairy {
+    position: fixed;
+    width: 8px !important;
+    height: 8px !important;
+    background: #FFE5B4 !important;
+    border-radius: 50%;
+    filter: blur(1px);
+    box-shadow: 
+        0 0 15px #FFE5B4,
+        0 0 25px #FFE5B4,
+        0 0 35px #FFE5B4,
+        0 0 45px #FFB6C1,
+        0 0 60px #FF69B4;
+    animation: fairyFloat 12s infinite ease-in-out;
+    opacity: 0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.fairy::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 229, 180, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(2px);
+    animation: fairyGlow 3s infinite alternate;
+}
+
+@keyframes fairyFloat {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    25% {
+        transform: translate(30px, -30px) scale(1.2);
+        opacity: 0.95;
+    }
+    50% {
+        transform: translate(60px, 0) scale(1);
+        opacity: 0.7;
+    }
+    75% {
+        transform: translate(30px, 30px) scale(1.2);
+        opacity: 0.95;
+    }
+}
+
+@keyframes fairyGlow {
+    0% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+/* Add more fairies with different paths */
+.fairy:nth-child(odd) {
+    animation: fairyFloatAlt 15s infinite ease-in-out;
+}
+
+@keyframes fairyFloatAlt {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    25% {
+        transform: translate(-30px, -40px) scale(1.3);
+        opacity: 0.95;
+    }
+    50% {
+        transform: translate(-50px, 0) scale(1);
+        opacity: 0.7;
+    }
+    75% {
+        transform: translate(-30px, 40px) scale(1.3);
+        opacity: 0.95;
+    }
+}
+
+/* Magical sparkle effect for inputs and buttons */
+.magical-input:focus, .magical-btn:hover {
+    animation: sparkle 1.5s infinite linear;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        box-shadow: 
+            0 0 15px rgba(255, 229, 180, 0.5),
+            0 0 25px rgba(255, 182, 193, 0.3),
+            0 0 35px rgba(255, 105, 180, 0.2);
+    }
+    50% {
+        box-shadow: 
+            0 0 20px rgba(255, 229, 180, 0.8),
+            0 0 30px rgba(255, 182, 193, 0.6),
+            0 0 40px rgba(255, 105, 180, 0.4);
+    }
+}
