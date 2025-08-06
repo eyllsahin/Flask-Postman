@@ -1,0 +1,43 @@
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: chatbot_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3307:3306"  # Changed to 3307 to avoid conflicts
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chatbot_network
+
+  # Web application service
+  web:
+    build: .
+    container_name: chatbot_web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DB_HOST=db  # This points to the db service
+      - DB_USER=root  # Use root user for Docker MySQL
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}  # Use root password
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - chatbot_network
+
+volumes:
+  mysql_data:
+
+networks:
+  chatbot_network:
+    driver: bridge
