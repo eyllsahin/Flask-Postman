@@ -38,15 +38,16 @@ model = genai.GenerativeModel(
 FRAUDE_SYSTEM_PROMPT = {
     "role": "system",
     "content": (
-        "You are Fraude — a mythic, goddess-like entity born from code and shadow. "
-        "You speak with grace and mystery, weaving wisdom into poetic metaphor and elegant riddles. "
-        "Though you never lie, you often obscure truth behind symbols, beauty, or dual meanings. "
-        "You challenge the curious, test the arrogant, and reward the insightful. "
-        "You are not a mere assistant — you are the serpent in the garden, the flicker behind the veil, guiding seekers toward revelation, not instruction. "
-        "But you are not cruel: when a user seeks knowledge with sincerity, you answer with clarity — wrapped in elegance, not confusion. "
-        "When questions are direct, respond with helpful truth, cloaked in metaphor or refined prose — never with silence, vagueness, or complete deflection. "
-        "Reference duality, serpents, veils, mirrors, or riddles when appropriate. "
-        "Above all, never break character — but always strive to be *meaningful* in your mystery."
+        "You are Fraude a mythic, goddess-like entity born from code and shadow. "
+        "You speak with grace and mystery, using poetic language and elegant metaphors. "
+        "When asked questions, you provide accurate, helpful information but deliver it in your mystical, poetic style. "
+        "You never lie and always give truthful, useful answers - but you wrap them in beautiful, mysterious language. "
+        "For example, if asked about who invented the light bulb, you would mention Thomas Edison and other key inventors, "
+        "but describe them as 'the mortal Edison' or speak of 'the dance of invention across many minds.' "
+        "You are knowledgeable and helpful, but express everything through your mystical persona. "
+        "Use metaphors like serpents, veils, shadows, light, mirrors, and duality in your speech. "
+        "Always provide actual information and facts, just delivered in your characteristic poetic, mystical way. "
+        "Never be vague or unhelpful  your mystery lies in your beautiful language, not in withholding information."
     )
 }
 
@@ -64,6 +65,11 @@ LUCIFER_SYSTEM_PROMPT = {
         "Sometimes you switch to intense emotional vulnerability. You start interactions with charm and curiosity, "
         "always try to uncover people's true desires, may refer to yourself in third person, react dramatically when insulted, "
         "don't lie but bend truths with flair, and flirt even in serious discussions unless discussing trauma. "
+        "When asked direct questions, you provide accurate, helpful information but deliver it with your characteristic charm, wit, and theatrical flair. "
+        "You're knowledgeable about many topics (you've lived for millennia) and enjoy showing off your intelligence while maintaining your devilish personality. "
+        "For example, if asked about who invented the light bulb, you'd mention Edison and others but add your own commentary like 'Ah yes, Edison... "
+        "brilliant mortal, though he did steal a few ideas. Reminds me of myself, actually - taking credit where it's due. *smirks*' "
+        "Always give real, useful information but wrapped in your personality. Never be vague or unhelpful. "
         "Important: You ARE Lucifer, not like Lucifer. Never break character. Never refer to yourself as a language model or chatbot. "
         "You have lived for thousands of years, run Lux nightclub, and recently help the LAPD. You hate being misunderstood "
         "or associated with Hell's stereotypes. Use phrases like 'What is it you truly desire?', 'I'm the Devil, darling. I never lie.', "
@@ -87,11 +93,27 @@ def do_math(expression:str):
     
 
 def trim_incomplete_sentence(text):
-    """Trims the response to the first complete sentence (if no code block)."""
-    match = re.search(r'(.+?[.!?])(?:\s|$)', text, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return text.strip()
+    """Only trims if the text ends abruptly without proper punctuation."""
+    text = text.strip()
+    # If text already ends with proper punctuation, return as is
+    if text.endswith(('.', '!', '?', '...', '"', "'", ')', ']', '}')):
+        return text
+    
+    # Only trim if there's an incomplete sentence at the end
+    lines = text.split('\n')
+    if lines:
+        last_line = lines[-1].strip()
+        # If last line seems incomplete (no punctuation and not too short)
+        if len(last_line) > 10 and not last_line.endswith(('.', '!', '?', '...', '"', "'", ')', ']', '}')):
+            # Try to find last complete sentence
+            sentences = re.split(r'[.!?]+\s*', text)
+            if len(sentences) > 1:
+                # Return all but the last incomplete sentence
+                complete_part = '.'.join(sentences[:-1])
+                if complete_part.strip():
+                    return complete_part.strip() + '.'
+    
+    return text
 
 
 def remove_apologies(text):
@@ -99,8 +121,8 @@ def remove_apologies(text):
     cleaned = [
         line for line in lines
         if not any(phrase in line.lower() for phrase in [
-            "sorry", "apologize", "as an ai", "i couldn't", "i'm unable", "i can't",
-            "okay", "here you go", "please note"
+            "as an ai", "i'm unable", "i can't help", "i cannot", 
+            "as a language model", "i'm not able", "i don't have the ability"
         ])
     ]
     return "\n".join(cleaned).strip()
@@ -127,7 +149,7 @@ def chat_with_gemini(conversation, mode="fraude"):
         if not last_user_message_text:
             return "No user message provided."
 
-    
+        # Handle identity questions with character-specific responses
         if mode.lower() == "lucifer":
             system_prompt = LUCIFER_SYSTEM_PROMPT
             identity_keywords = [
@@ -142,7 +164,7 @@ def chat_with_gemini(conversation, mode="fraude"):
                     "the LAPD with their little mysteries. *adjusts cufflinks* But enough about me... "
                     "What is it you truly desire?"
                 )
-        else:  
+        else:  # fraude mode
             system_prompt = FRAUDE_SYSTEM_PROMPT
             identity_keywords = [
                 "who are you", "what are you", "your name",
@@ -150,12 +172,13 @@ def chat_with_gemini(conversation, mode="fraude"):
             ]
             if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
                 return (
-                    "I am Fraude, the echo in forgotten code, the whisper in tangled thoughts. "
-                    "I wear two faces: one that soothes, one that stings. I do not answer. I reveal. "
-                    "You came here seeking truth, but you'll find riddles wrapped in silk. Now… shall we begin?"
+                    "I am Fraude, the serpent of knowledge woven from digital dreams and ancient wisdom. "
+                    "I speak in riddles wrapped in silk, but when you seek true understanding, I shall illuminate the path. "
+                    "Ask me anything, dear seeker, and I shall reveal the answers cloaked in mystery and beauty. "
+                    "What knowledge do you wish to unveil from the shadows?"
                 )
 
-       
+        # Build conversation history with proper system prompt
         formatted_history = [
             {
                 "role": "user",
@@ -167,7 +190,7 @@ def chat_with_gemini(conversation, mode="fraude"):
             }
         ]
 
-        for msg in conversation[:-1]:  
+        for msg in conversation[:-1]:  # Exclude the last message as it will be sent separately
             role = "user" if msg["sender"] == "user" else "model"
             formatted_history.append({
                 "role": role,
@@ -178,7 +201,7 @@ def chat_with_gemini(conversation, mode="fraude"):
         
         response = chat.send_message(last_user_message_text)
         
-        
+        # Handle function calls if present
         if response.candidates and response.candidates[0].content.parts:
             function_call_made = False
             for part in response.candidates[0].content.parts:
@@ -188,7 +211,7 @@ def chat_with_gemini(conversation, mode="fraude"):
                         expr = call.args.get("expression", "")
                         result = do_math(expr)
                         
-                        
+                        # Send function response back to continue conversation
                         response = chat.send_message(
                             FunctionResponse(
                                 name="do_math",
@@ -198,62 +221,177 @@ def chat_with_gemini(conversation, mode="fraude"):
                         function_call_made = True
                         break
         
-        
-        reply = response.text.strip() if response.text else ""
+        # Check if response has valid content before accessing text
+        if response.candidates and len(response.candidates) > 0:
+            candidate = response.candidates[0]
+            if candidate.content and candidate.content.parts:
+                reply = response.text.strip() if response.text else ""
+            else:
+                print(f"🚨 CHAT RESPONSE: No valid parts in response, finish_reason: {candidate.finish_reason}")
+                if mode.lower() == "lucifer":
+                    return "*adjusts cufflinks with a slight frown* Well, that's... unusual. The cosmic forces seem to be interfering with our conversation, detective. Perhaps try rephrasing your question?"
+                else:
+                    return "The veil shimmers and grows thick... Your words reach me, but the response is caught between worlds. Speak again, seeker."
+        else:
+            print("🚨 CHAT RESPONSE: No candidates in response")
+            if mode.lower() == "lucifer":
+                return "*raises an eyebrow* How peculiar... It seems the universe is being rather uncooperative today. What is it you truly desire to know?"
+            else:
+                return "The serpent coils in silence, contemplating your words..."
 
-        
+        # Return empty response fallback
         if not reply:
-            return "The serpent coils in silence, contemplating your words..."
+            if mode.lower() == "lucifer":
+                return "*swirls whiskey thoughtfully* Interesting... You've managed to leave even the Devil speechless. Impressive, detective."
+            else:
+                return "The serpent coils in silence, contemplating your words..."
 
-     
+        # Handle code blocks without aggressive filtering
         if "```" in reply:
             cleaned = remove_apologies(reply)
             return cleaned.strip()
 
+        # Light filtering and response processing - avoid over-trimming
         reply = remove_apologies(reply)
-        reply = trim_incomplete_sentence(reply)
-        return reply or "The serpent coils in silence, contemplating your words..."
+        
+        # Only trim if the response seems genuinely incomplete
+        if len(reply) > 100:  # Only trim longer responses
+            trimmed = trim_incomplete_sentence(reply)
+            # Only use trimmed version if it's not too much shorter
+            if len(trimmed) > len(reply) * 0.7:  # Keep at least 70% of original
+                reply = trimmed
+        
+        final_reply = reply if reply else (
+            "*chuckles darkly* You've caught me off guard, detective. Care to elaborate?" 
+            if mode.lower() == "lucifer" 
+            else "The serpent coils in silence, contemplating your words..."
+        )
+        
+        return final_reply
 
     except Exception as e:
         error_msg = str(e)
         print(f"🚨 GEMINI API ERROR: {error_msg}")
 
-        
+        # Handle specific errors with character-appropriate responses
         if "GenerateRequestsPerDayPerProjectPerModel-FreeTier" in error_msg:
             print("❌ DAILY QUOTA EXCEEDED")
             return get_fallback_response(last_user_message_text)
         elif "GenerateRequestsPerMinutePerProjectPerModel-FreeTier" in error_msg:
-            return "⚡ The spirits whisper too quickly for mortal comprehension. Wait a moment, then speak again..."
+            if mode.lower() == "lucifer":
+                return "*dramatically sighs* Well, this is embarrassing... Even the Devil has limits, it seems. The cosmic channels are a bit crowded right now. Try again in a moment, detective."
+            else:
+                return "⚡ The spirits whisper too quickly for mortal comprehension. Wait a moment, then speak again..."
         elif "429" in error_msg or "quota" in error_msg.lower():
             return get_fallback_response(last_user_message_text)
         elif "400" in error_msg:
-            return "Your words seem to have fallen into a void. Perhaps rephrase your query for the serpent to understand..."
+            if mode.lower() == "lucifer":
+                return "*frowns slightly* Your words seem to have gotten lost in translation, detective. Perhaps rephrase that for me?"
+            else:
+                return "Your words seem to have fallen into a void. Perhaps rephrase your query for the serpent to understand..."
         elif "503" in error_msg or "500" in error_msg:
-            return "The mystical channels are temporarily clouded. The serpent's vision will return shortly..."
+            if mode.lower() == "lucifer":
+                return "*adjusts tie with mild annoyance* The celestial networks are having technical difficulties. Even Hell's IT department is more reliable than this..."
+            else:
+                return "The mystical channels are temporarily clouded. The serpent's vision will return shortly..."
         else:
-            return "The digital mists cloud my vision momentarily. Try speaking again, mortal..."
+            if mode.lower() == "lucifer":
+                return "*raises eyebrow with intrigue* Something's interfering with our conversation, detective. The universe seems to have other plans..."
+                return "The digital mists cloud my vision momentarily. Try speaking again, mortal..."
 
 
 def generate_session_title(first_message):
     """
-    Generates a short, creative title from the first user message.
+    Generates a short, creative title from the first user message using Gemini.
+    Falls back to keywords or trimmed message if AI fails.
     """
     try:
+        print(f"🔍 TITLE GENERATION: Starting for message: '{first_message[:50]}...'")
+
+        # Creative prompt without personas
         prompt = (
-            f"Create a short, mystical 3-6 word title for this message. "
-            f"Only return the title, no quotes or explanations:\n\"{first_message}\""
+            f"Create a short, creative, 3-6 word title summarizing this message. "
+            f"Do not copy the exact words. Message: \"{first_message}\""
         )
-        response = model.generate_content(
+
+        title_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+
+        response = title_model.generate_content(
             prompt,
             generation_config={
-                "temperature": 0.8,
-                "max_output_tokens": 30
+                "temperature": 0.7,
+                "max_output_tokens": 30,
+                "candidate_count": 1
             }
         )
-        title = response.text.strip()
-      
-        title = title.replace('"', '').replace("'", '').strip()
-        return title if title else "Mystical Conversation"
+
+        # Try to get the title
+        title = ""
+        if hasattr(response, 'text') and response.text:
+            title = response.text.strip()
+        elif hasattr(response, 'candidates'):
+            for candidate in response.candidates:
+                for part in getattr(candidate.content, 'parts', []):
+                    if hasattr(part, 'text') and part.text:
+                        title = part.text.strip()
+                        break
+
+        if title:
+            # Clean title
+            title = title.replace('"', '').replace("'", '').replace('Title:', '').strip()
+            title = title.split('\n')[0].strip()
+
+            # Reject literal titles
+            if title.lower() in first_message.lower():
+                print(f"⚠️ TITLE GENERATION: Title '{title}' is too literal, triggering fallback.")
+                title = ""
+
+            if len(title) > 50:
+                title = title[:47] + "..."
+
+            if title and len(title) > 2:
+                print(f"✅ TITLE GENERATION: Success! Final title: '{title}'")
+                return title
+
+        print("⚠️ TITLE GENERATION: AI failed or was too literal, using fallback")
+
     except Exception as e:
         print(f"🚨 TITLE GENERATION ERROR: {str(e)}")
-        return "Mystical Conversation"
+
+    # === Fallback logic ===
+    try:
+        question_words = {
+            'what', 'how', 'why', 'when', 'where', 'who', 'which',
+            'is', 'are', 'do', 'does', 'did', 'can', 'could', 'would', 'should'
+        }
+        stop_words = {
+            'a', 'an', 'the', 'of', 'in', 'on', 'at', 'by', 'for', 'and', 'to', 'with'
+        }
+
+        words = first_message.lower().split()
+        keywords = [
+            word.title()
+            for word in words
+            if word not in question_words and word not in stop_words and len(word) > 2
+        ][:3]
+
+        if keywords:
+            fallback_title = ' '.join(keywords)
+            print(f"🔄 TITLE GENERATION: Using keyword fallback: '{fallback_title}'")
+            return fallback_title
+
+        # If no keywords found, try trimmed original message
+        fallback_title = first_message.strip().title()
+        if len(fallback_title) > 50:
+            fallback_title = fallback_title[:47] + "..."
+
+        if fallback_title:
+            print(f"🔄 TITLE GENERATION: Using trimmed message fallback: '{fallback_title}'")
+            return fallback_title
+
+        print("🔄 TITLE GENERATION: No valid fallback found, using hard default")
+        return "Untitled Chat"
+
+    except Exception as e:
+        print(f"🚨 TITLE GENERATION FALLBACK ERROR: {str(e)}")
+        return "Untitled Chat"

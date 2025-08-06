@@ -60,12 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const date = new Date(dateStr);
             if (isNaN(date.getTime())) {
-                return dateStr; // Just return the original string if it's not a valid date
+                return dateStr; 
             }
             return date.toLocaleString();
         } catch (e) {
             console.error('Date formatting error:', e);
-            return dateStr; // Return the original string in case of errors
+            return dateStr; 
         }
     }
 
@@ -203,13 +203,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.height = 'auto';
         document.documentElement.style.height = 'auto';
         
-        ,
+        
         const adminContainer = document.querySelector('.admin-container');
         if (adminContainer) {
             adminContainer.style.maxHeight = 'none';
             adminContainer.style.height = 'auto';
         }
-        ,
+        
         const height = Math.max(
             document.body.scrollHeight,
             document.body.offsetHeight,
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newMaxScroll = newScrollHeight - window.innerHeight;
             const newScrollTop = Math.min(scrollPercentage * newScrollHeight, Math.max(0, newMaxScroll));
             
-            // Force main scrollbar to update by resetting to top first
+            
             window.scrollTo(0, 0);
             setTimeout(() => {
                 window.scrollTo(0, newScrollTop);

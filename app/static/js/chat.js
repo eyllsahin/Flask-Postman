@@ -545,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await res.json();
-            currentSessionId = data.id;
+            currentSessionId = data.session_id;
             chatTitle.textContent = data.title;
             chatMessages.innerHTML = "";
             await loadSessions(); // Refresh to show the new session

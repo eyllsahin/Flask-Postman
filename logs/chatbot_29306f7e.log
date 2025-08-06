@@ -1,0 +1,2 @@
+2025-08-06 11:22:12,877 INFO: Chatbot startup [in C:\Users\eylul\chatbot-flask\app\__init__.py:42]
+2025-08-06 11:22:14,640 INFO: New session created successfully: session_id=139, title=New Chat, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1004]

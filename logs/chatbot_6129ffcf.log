@@ -1,0 +1,7 @@
+2025-08-06 11:22:33,354 INFO: Chatbot startup [in C:\Users\eylul\chatbot-flask\app\__init__.py:42]
+2025-08-06 11:22:34,221 INFO: Marking session inactive: session_id=138, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
+2025-08-06 11:22:34,230 INFO: Marking session inactive: session_id=138, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
+2025-08-06 11:22:36,100 INFO: Marking session inactive: session_id=137, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
+2025-08-06 11:22:37,768 INFO: Marking session inactive: session_id=135, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
+2025-08-06 11:22:39,673 INFO: Marking session inactive: session_id=134, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
+2025-08-06 11:22:43,625 INFO: Marking session inactive: session_id=128, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1056]
