@@ -12,7 +12,15 @@
 <div class="admin-container">
     <div class="admin-header">
         <h1>✧ Magical User Management ✧</h1>
-        <button id="backToOverview" class="magical-btn">Return to Overview</button>
+        <div class="header-buttons">
+            <button id="backToOverview" class="magical-btn">Return to Overview</button>
+            <button id="logoutBtn" class="magical-btn" style="background-color: #dc3545; margin-left: 10px;">🚪 Leave Realm</button>
+        </div>
+    </div>
+    
+    <!-- Simple logout button as backup -->
+    <div style="text-align: right; margin-bottom: 20px;">
+        <button onclick="logout()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">🔓 LOGOUT NOW</button>
     </div>
     
     <div class="user-list-container">
@@ -74,10 +82,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    margin-bottom: 3rem;
+    padding: 1.5rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
+    gap: 2rem;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 1rem;
 }
 
 .admin-header h1 {
@@ -229,13 +243,79 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 <script>
+// Enhanced back navigation prevention
+history.pushState(null, null, window.location.href);
+window.addEventListener("popstate", () => {
+    console.log("Back button pressed, checking auth");
+    const token = localStorage.getItem("token");
+    if (!token) {
+        window.location.replace("/login");
+    } else {
+        // Push state again to prevent going back
+        history.pushState(null, null, window.location.href);
+    }
+});
+
+// Simple logout function
+async function logout() {
+    console.log('Logout function called');
+    
+    try {
+        // Call logout endpoint to clear server-side session
+        await fetch("/logout", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                "Content-Type": "application/json"
+            }
+        });
+    } catch (err) {
+        console.log("Logout request failed, but continuing with client-side cleanup");
+    }
+    
+    try {
+        // Clear tokens
+        localStorage.removeItem('token');
+        sessionStorage.clear();
+        
+        // Clear cookies more thoroughly
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        
+        // Clear any cached data
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    caches.delete(name);
+                });
+            });
+        }
+        
+        console.log('Redirecting to login...');
+        // Force redirect to login
+        window.location.replace('/login');
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Fallback redirect
+        window.location.href = '/login';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Add back to overview button functionality
     const backBtn = document.getElementById('backToOverview');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             window.location.href = '/admin';
         });
+    }
+    
+    // Add logout functionality if button exists
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
     }
     
     // Add animated fairy lights

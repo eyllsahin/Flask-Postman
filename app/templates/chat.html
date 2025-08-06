@@ -15,6 +15,7 @@
   <!-- Your CSS themes -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/magical-chat.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/lucifer-theme.css') }}">
 
   <!-- Inline custom fixes -->
   <style>
@@ -91,8 +92,8 @@
     .chat-input {
       display: flex;
       gap: 10px;
-      flex-shrink: 0; /* Prevents the input area from shrinking */
-      margin-top: auto; /* Pushes input to bottom */
+      flex-shrink: 0; 
+      margin-top: auto; 
     }
 
     #messageInput {
@@ -125,10 +126,100 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
     }
+
+    /* Magical logout button styling - matches admin */
+    #logoutBtn {
+      background: var(--accent-color);
+      color: var(--text-light);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #logoutBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+    }
+
+    #logoutBtn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+      transform: rotate(45deg);
+      transition: all 0.5s ease;
+      opacity: 0;
+    }
+
+    #logoutBtn:hover::before {
+      opacity: 0.5;
+      animation: shine 1.5s infinite linear;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: rotate(45deg) translateX(-100%);
+      }
+      100% {
+        transform: rotate(45deg) translateX(100%);
+      }
+    }
+
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .mode-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mode-selector label {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .mode-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--fairy-glow);
+      border-radius: 8px;
+      color: var(--text-light);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mode-select:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent-color);
+    }
+
+    .mode-select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(139, 69, 19, 0.3);
+    }
   </style>
 </head>
 <body>
-  <!-- Floating Fairies -->
+ 
   <div class="fairy" style="left: 5%; top: 10%; animation-delay: 0s;"></div>
   <div class="fairy" style="left: 15%; top: 20%; animation-delay: 2s;"></div>
   <div class="fairy" style="left: 25%; top: 35%; animation-delay: 4s;"></div>
@@ -138,8 +229,32 @@
   <div class="fairy" style="left: 85%; top: 30%; animation-delay: 12s;"></div>
   <div class="fairy" style="left: 95%; top: 45%; animation-delay: 14s;"></div>
 
+  <!-- Thorn decorations for Lucifer mode -->
+  <div class="thorn-decoration" style="display: none;">
+    <div class="thorn"></div>
+    <div class="thorn"></div>
+    <div class="thorn"></div>
+    <div class="thorn"></div>
+    <div class="thorn"></div>
+    <div class="thorn"></div>
+  </div>
+
+  <!-- Fire effects for Lucifer mode -->
+  <div class="fire-effects" style="display: none;">
+    <div class="fire" style="left: 5%; top: 80%; animation-delay: 0s;"></div>
+    <div class="fire" style="left: 15%; top: 75%; animation-delay: 1s;"></div>
+    <div class="fire" style="left: 25%; top: 85%; animation-delay: 2s;"></div>
+    <div class="fire" style="left: 35%; top: 70%; animation-delay: 3s;"></div>
+    <div class="fire" style="left: 45%; top: 90%; animation-delay: 4s;"></div>
+    <div class="fire" style="left: 55%; top: 75%; animation-delay: 5s;"></div>
+    <div class="fire" style="left: 65%; top: 85%; animation-delay: 6s;"></div>
+    <div class="fire" style="left: 75%; top: 70%; animation-delay: 7s;"></div>
+    <div class="fire" style="left: 85%; top: 90%; animation-delay: 8s;"></div>
+    <div class="fire" style="left: 95%; top: 80%; animation-delay: 9s;"></div>
+  </div>
+
   <div class="container">
-    <!-- Sidebar -->
+   
     <div class="sidebar">
       <img src="{{ url_for('static', filename='img/fraudeLogo.svg') }}" alt="Fraude" class="fraude-logo">
       <h2>✧ Fraude Realms ✧</h2>
@@ -147,11 +262,18 @@
       <ul id="sessionList"></ul>
     </div>
 
-    <!-- Magical Chat Area -->
+   
     <div class="chat-area">
       <div class="chat-header">
         <div id="chatTitle">✧ New Enchantment ✧</div>
-        <button id="logoutBtn">Leave Realm</button>
+        <div class="mode-selector">
+          <label for="modeSelect">Persona:</label>
+          <select id="modeSelect" class="mode-select">
+            <option value="fraude">✧ Fraude ✧</option>
+            <option value="lucifer">😈 Lucifer Morningstar 😈</option>
+          </select>
+        </div>
+        <button id="logoutBtn">🚪 Leave Realm</button>
       </div>
 
       <div id="chatMessages"></div>

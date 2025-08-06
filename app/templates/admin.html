@@ -413,12 +413,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Add logout functionality
+    // Add enhanced logout functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('click', async () => {
+            console.log('Logout function called from admin');
+            
+            try {
+                // Call logout endpoint to clear server-side session
+                await fetch("/logout", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+            } catch (err) {
+                console.log("Logout request failed, but continuing with client-side cleanup");
+            }
+            
+            // Clear client-side tokens
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            sessionStorage.clear();
+            
+            // Clear cookies more thoroughly
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Clear any cached data
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Prevent back navigation to logged-in pages
+            console.log('Redirecting to login from admin...');
+            window.history.replaceState(null, null, "/login");
+            window.location.replace('/login');
         });
     }
 });

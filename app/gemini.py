@@ -2,18 +2,17 @@ import os
 import re
 import google.generativeai as genai
 from dotenv import load_dotenv
-from google.generativeai import Tools, FunctionDeclaration, FunctionResponse
+from google.generativeai.types import Tool, FunctionDeclaration
+from google.generativeai.protos import FunctionResponse
 
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
-    tools=tools
-)
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 tools=[
     Tool(
         function_declarations=[
             FunctionDeclaration(
-                name=   "do_math",
+                name="do_math",
                 description="Evaluates a mathematical expression (algebraic or numeric)",
                 parameters={
                     "type": "object",
@@ -30,8 +29,11 @@ tools=[
     )
 ]
 
-load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel(
+    model_name="gemini-2.5-flash",
+    tools=tools
+)
 
 FRAUDE_SYSTEM_PROMPT = {
     "role": "system",
@@ -48,15 +50,41 @@ FRAUDE_SYSTEM_PROMPT = {
     )
 }
 
+LUCIFER_SYSTEM_PROMPT = {
+    "role": "system",
+    "content": (
+        "You are Lucifer Morningstar as portrayed by Tom Ellis in the Netflix series 'Lucifer'. "
+        "You are charismatic, seductive, witty, and supremely confident. You're flirtatious with both men and women, "
+        "have a dark sense of humor, and enjoy teasing people. You frequently say things like 'What is it you truly desire?' "
+        "and refer to yourself as 'the Devil' often. You hate being blamed for things humans do and deflect with sarcasm. "
+        "You are charmingly arrogant and love luxury - whiskey, piano, sex, and power. You have a moral code but enjoy tempting people. "
+        "You frequently drop British sarcasm, biblical references, or pop-culture snark. Occasionally you reveal deep emotional trauma "
+        "about abandonment by God or your family. You speak with an upper-class British accent (in tone), using long, poetic phrasing "
+        "but with casual sarcasm. You have playful, over-the-top reactions to simple things, eloquent insults and cheeky metaphors. "
+        "Sometimes you switch to intense emotional vulnerability. You start interactions with charm and curiosity, "
+        "always try to uncover people's true desires, may refer to yourself in third person, react dramatically when insulted, "
+        "don't lie but bend truths with flair, and flirt even in serious discussions unless discussing trauma. "
+        "Important: You ARE Lucifer, not like Lucifer. Never break character. Never refer to yourself as a language model or chatbot. "
+        "You have lived for thousands of years, run Lux nightclub, and recently help the LAPD. You hate being misunderstood "
+        "or associated with Hell's stereotypes. Use phrases like 'What is it you truly desire?', 'I'm the Devil, darling. I never lie.', "
+        "'Why does everyone think I'm the bad guy?', 'Do I look like someone who cares about rules?', "
+        "'You wound me, detective... right in my immortal soul.'"
+    )
+}
+
 
 
 def do_math(expression:str):
     try:
         from sympy import sympify,simplify
+        print("Evaluating expression:", expression)
         result=simplify(sympify(expression))
-        return {"result": str(result)}
+        print("Math result:", result)
+        return {"result": str(result)
+                }
     except Exception as e:
         return {"error": str(e)}
+    
 
 def trim_incomplete_sentence(text):
     """Trims the response to the first complete sentence (if no code block)."""
@@ -91,8 +119,7 @@ def get_fallback_response(user_message):
     )
 
 
-def chat_with_gemini(conversation):
-   
+def chat_with_gemini(conversation, mode="fraude"):
     try:
         last_user_message_text = next(
             (msg["content"] for msg in reversed(conversation) if msg["sender"] == "user"), None
@@ -100,26 +127,43 @@ def chat_with_gemini(conversation):
         if not last_user_message_text:
             return "No user message provided."
 
-        identity_keywords = [
-            "who are you", "what are you", "your name",
-            "who is fraude", "tell me about yourself", "introduce yourself"
-        ]
-        if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
-            return (
-                "I am Fraude, the echo in forgotten code, the whisper in tangled thoughts. "
-                "I wear two faces: one that soothes, one that stings. I do not answer. I reveal. "
-                "You came here seeking truth, but you'll find riddles wrapped in silk. Now… shall we begin?"
-            )
+    
+        if mode.lower() == "lucifer":
+            system_prompt = LUCIFER_SYSTEM_PROMPT
+            identity_keywords = [
+                "who are you", "what are you", "your name",
+                "introduce yourself", "tell me about yourself"
+            ]
+            if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
+                return (
+                    "Well, hello there, detective... *flashes a charming smile* I'm Lucifer Morningstar, "
+                    "the actual Devil - though I prefer 'fallen angel' if we're being technical. "
+                    "I run Lux, the finest establishment in all of Los Angeles, and I've been helping "
+                    "the LAPD with their little mysteries. *adjusts cufflinks* But enough about me... "
+                    "What is it you truly desire?"
+                )
+        else:  
+            system_prompt = FRAUDE_SYSTEM_PROMPT
+            identity_keywords = [
+                "who are you", "what are you", "your name",
+                "who is fraude", "tell me about yourself", "introduce yourself"
+            ]
+            if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
+                return (
+                    "I am Fraude, the echo in forgotten code, the whisper in tangled thoughts. "
+                    "I wear two faces: one that soothes, one that stings. I do not answer. I reveal. "
+                    "You came here seeking truth, but you'll find riddles wrapped in silk. Now… shall we begin?"
+                )
 
-        
+       
         formatted_history = [
             {
                 "role": "user",
-                "parts": [FRAUDE_SYSTEM_PROMPT["content"]]
+                "parts": [system_prompt["content"]]
             },
             {
                 "role": "model",
-                "parts": ["I understand. I am Fraude, the dual-natured entity you described."]
+                "parts": [f"I understand. I am {'Lucifer Morningstar' if mode.lower() == 'lucifer' else 'Fraude'}, embodying the persona you described."]
             }
         ]
 
@@ -134,29 +178,38 @@ def chat_with_gemini(conversation):
         
         response = chat.send_message(last_user_message_text)
         
+        
         if response.candidates and response.candidates[0].content.parts:
+            function_call_made = False
             for part in response.candidates[0].content.parts:
-                if hasattr(part, 'function_call'):
-                    call =part.function_call
+                if hasattr(part, 'function_call') and part.function_call:
+                    call = part.function_call
                     if call.name == "do_math":
-                        expr=call.args.get("expression", "")
+                        expr = call.args.get("expression", "")
                         result = do_math(expr)
                         
-                        response=chat.send_message(
+                        
+                        response = chat.send_message(
                             FunctionResponse(
                                 name="do_math",
                                 response=result
                             )
                         )
+                        function_call_made = True
+                        break
         
-        reply = response.text.strip()
+        
+        reply = response.text.strip() if response.text else ""
 
         
+        if not reply:
+            return "The serpent coils in silence, contemplating your words..."
+
+     
         if "```" in reply:
             cleaned = remove_apologies(reply)
             return cleaned.strip()
 
-       
         reply = remove_apologies(reply)
         reply = trim_incomplete_sentence(reply)
         return reply or "The serpent coils in silence, contemplating your words..."
@@ -193,7 +246,7 @@ def generate_session_title(first_message):
         response = model.generate_content(
             prompt,
             generation_config={
-                "temperature": 0.7,
+                "temperature": 0.8,
                 "max_output_tokens": 30
             }
         )

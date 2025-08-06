@@ -8,13 +8,12 @@ import os
 import logging
 from app.gemini import chat_with_gemini
 from app.gemini import generate_session_title
-from flask import request, jsonify
 from marshmallow import Schema, fields, validate, ValidationError
-from marshmallow import ValidationError
+from functools import wraps
 
-# Configure logging - reduced verbosity
+
 logging.basicConfig(
-    level=logging.WARNING,  # Only show warnings and errors
+    level=logging.WARNING,  
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler()
@@ -24,25 +23,163 @@ logger = logging.getLogger(__name__)
 
 main = Blueprint('main', __name__)
 
-class LoginSchema(Schema):
-    email = fields.Email(required=True)
-    password = fields.String(required=True)
+
+def validate_token(token):
+    """Validate JWT token and return decoded payload or None"""
+    if not token:
+        return None
+    try:
+        decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        return decoded
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return None
+
+
+def require_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Token is missing!'}), 401
+        
+        token = auth_header.split(" ")[1]
+        decoded = validate_token(token)
+        if not decoded:
+            return jsonify({'error': 'Invalid or expired token!'}), 401
+        
+    
+        request.current_user = decoded
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def require_admin(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Token is missing!'}), 401
+        
+        token = auth_header.split(" ")[1]
+        decoded = validate_token(token)
+        if not decoded or not decoded.get('is_admin'):
+            return jsonify({'error': 'Admin privileges required!'}), 403
+        
+        
+        request.current_user = decoded
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@main.after_request
+def add_security_headers(response):
+    
+    if request.endpoint in ['chat_page', 'admin_dashboard', 'admin_view_user', 'home', 'login_page', 'register_page']:
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['Last-Modified'] = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    
+    
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    
+    return response
+
 
 @main.route('/')
 def home():
-    return redirect('/login')
+    
+    response = redirect('/login')
+    response.set_cookie('token', '', expires=0)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @main.route('/register', methods=['GET'])
 def register_page():
+   
+    token = request.cookies.get('token')
+    if token:
+        try:
+            decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+            if decoded.get('user_id') and not decoded.get('is_admin'):
+                return redirect('/chat')
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            
+            pass
+    
     return render_template('register.html')
 
 @main.route('/chat', methods=['GET'])
 def chat_page():
-    return render_template('chat.html')
+    
+    token = request.cookies.get('token')
+    if not token:
+        return redirect('/login')
+    
+    try:
+        decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        if not decoded.get('user_id'):
+            return redirect('/login')
+        return render_template('chat.html')
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        
+        response = redirect('/login')
+        response.set_cookie('token', '', expires=0)
+        return response
 
 @main.route('/login', methods=['GET'])
 def login_page():
-    return render_template('login.html')
+    from flask import make_response
+    
+    token = request.cookies.get('token')
+    if token:
+        try:
+            decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+            
+            if decoded.get('user_id') and not decoded.get('is_admin'):
+                return redirect('/chat')
+            elif decoded.get('is_admin'):
+                response = make_response(render_template('login.html'))
+                response.set_cookie('token', '', expires=0)
+                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                response.headers["Pragma"] = "no-cache"
+                response.headers["Expires"] = "0"
+                return response
+        except:
+            response = make_response(render_template('login.html'))
+            response.set_cookie('token', '', expires=0)
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+            return response
+    
+    response = make_response(render_template('login.html'))
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@main.route('/admin/login', methods=['GET'])
+def admin_login_page():
+    
+    token = request.cookies.get('token')
+    if token:
+        try:
+            decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+            if decoded.get('is_admin'):
+                return redirect('/admin')
+        except:
+          
+            pass
+    return render_template('admin_login.html')
 
 @main.route('/login', methods=['POST'])
 def login():
@@ -79,7 +216,7 @@ def login():
                 algorithm="HS256"
             )
             
-            # Use string token for consistent handling
+           
             if isinstance(token, bytes):
                 token = token.decode('utf-8')
            
@@ -95,8 +232,11 @@ def login():
                 })
             else:
                 response = redirect(redirect_url)
+                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                response.headers["Pragma"] = "no-cache"
+                response.headers["Expires"] = "0"
 
-            # Set both cookie and localStorage token
+            
             response.set_cookie(
                 'token', token,
                 httponly=False,  
@@ -127,20 +267,37 @@ def login():
 
 @main.route('/admin', methods=['GET'])
 def admin_dashboard():
-   
+    
     token = request.cookies.get('token')
     
     if not token:
-        return redirect('/login')
+        
+        response = redirect('/login')
+        response.set_cookie('token', '', expires=0)
+        return response
     
     try:
-      
         decoded = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
         if not decoded.get('is_admin'):
-            return redirect('/login')
+            
+            response = redirect('/login')
+            response.set_cookie('token', '', expires=0)
+            return response
 
+        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("SELECT id, is_admin FROM users WHERE id = %s AND is_admin = 1", 
+                      (decoded.get('user_id'),))
+        admin_user = cursor.fetchone()
+        
+        if not admin_user:
+            cursor.close()
+            conn.close()
+            response = redirect('/login')
+            response.set_cookie('token', '', expires=0)
+            return response
 
         cursor.execute("SELECT COUNT(*) as total_users FROM users WHERE is_admin = 0")
         total_users = cursor.fetchone()['total_users']
@@ -157,11 +314,11 @@ def admin_dashboard():
             'total_messages': total_messages
         }
 
-        # Clean up orphaned sessions first
+        
         cursor.execute("DELETE FROM session WHERE user_id NOT IN (SELECT id FROM users)")
         conn.commit()
         
-        # Get users with their sessions - only show users who actually exist
+        
         cursor.execute("""
             SELECT 
                 u.id,
@@ -184,8 +341,7 @@ def admin_dashboard():
                 'created_at': user_row['created_at'], 
                 'sessions': []
             }
-        
-        # Now get sessions for each user
+
         if users:
             user_ids = list(users.keys())
             format_strings = ','.join(['%s'] * len(user_ids))
@@ -194,7 +350,7 @@ def admin_dashboard():
                     s.user_id,
                     s.id as session_id,
                     COALESCE(s.title, 'Untitled') as title,
-                    DATE_FORMAT(s.created_at, '%Y-%m-%d') as session_created,
+                    DATE_FORMAT(s.created_at, '%Y-%m-%d %H:%i:%S') as session_created,
                     s.is_active,
                     COUNT(m.id) as message_count
                 FROM session s
@@ -202,17 +358,23 @@ def admin_dashboard():
                 WHERE s.user_id IN ({format_strings})
                 GROUP BY s.id, s.user_id
                 ORDER BY s.created_at DESC
-            """, user_ids)
+                LIMIT 200
+            """, tuple(user_ids))
             
             session_results = cursor.fetchall()
+            
             
             for session_row in session_results:
                 user_id = session_row['user_id']
                 if user_id in users:
-                    # Clean and validate session title
+                    
+                    if len(users[user_id]['sessions']) >= 20:
+                        continue
+                        
+                    
                     session_title = session_row['title'] or 'Untitled Session'
-                    # Remove any problematic characters and truncate if too long
-                    session_title = ''.join(char for char in session_title if ord(char) < 127)  # Remove non-ASCII
+                    
+                    session_title = ''.join(char for char in session_title if ord(char) < 127)  
                     session_title = session_title.strip()
                     if len(session_title) > 100:
                         session_title = session_title[:97] + '...'
@@ -272,7 +434,7 @@ def get_admin_sessions():
                 session.id,
                 session.user_id,
                 session.title,
-                DATE_FORMAT(session.created_at, '%Y-%m-%d') as created_at,
+                DATE_FORMAT(session.created_at, '%Y-%m-%d %H:%i:%S') as created_at,
                 session.is_active,
                 users.username
             FROM session 
@@ -301,18 +463,17 @@ def get_admin_sessions():
             conn.close()
 
 
-class RegisterSchema(Schema):
-    email = fields.Email(required=True)
-    username = fields.String(
-        required=True,
-        validate=[
-            validate.Length(min=3, max=30),
-            validate.Regexp(r'^[a-zA-Z0-9_]+$', error="Only letters, numbers and underscores allowed")
-        ]
-    )
-    password = fields.String(required=True, validate=validate.Length(min=4))
-    confirm_password = fields.String(required=True)
-    created_at = fields.String(dump_only=True)
+@main.route('/logout', methods=['POST', 'GET'])
+def logout():
+    response = redirect('/login')
+    
+    response.set_cookie('token', '', expires=0, httponly=False, secure=False, samesite='Strict')
+    
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 
 @main.route('/register', methods=['POST'])
 def register():
@@ -360,6 +521,7 @@ class MessageSchema(Schema):
     created_at = fields.String(dump_only=True)
     title = fields.String(dump_only=True)
     session_id = fields.Integer(load_only=True)
+    mode = fields.String(validate=validate.OneOf(["fraude", "lucifer"]))
 @main.route('/chat/message', methods=['POST'])
 def post_message():
     schema = MessageSchema()
@@ -404,9 +566,10 @@ def post_message():
                 session = cursor.fetchone()
             
             if not session:
+                current_datetime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
                 cursor.execute(
-                    "INSERT INTO session (user_id, title, is_active) VALUES (%s, %s, TRUE)",
-                    (user_id, 'Default Session')
+                    "INSERT INTO session (user_id, title, created_at, is_active) VALUES (%s, %s, %s, TRUE)",
+                    (user_id, 'Default Session', current_datetime)
                 )
                 session_id = cursor.lastrowid
             else:
@@ -426,22 +589,33 @@ def post_message():
         )
         history = cursor.fetchall()
         
-        # Convert history to the format expected by Gemini
+        
         conversation_history = [{"sender": msg["sender"], "content": msg["content"]} for msg in history]
         
+        mode = data.get('mode', 'fraude')
+        
         try:
-            reply = chat_with_gemini(conversation_history)
-            print(f"✅ Gemini response received for session {session_id}")
+            reply = chat_with_gemini(conversation_history, mode)
+            print(f"✅ Gemini response received for session {session_id} in {mode} mode")
         except Exception as e:
             print(f"🚨 ERROR calling Gemini API: {str(e)}")
-            # More specific error messages based on the error type
+            
             error_str = str(e).lower()
             if "429" in error_str or "quota" in error_str or "rate limit" in error_str:
-                reply = "The ancient spirits are overwhelmed by too many voices at once. Please wait a moment before speaking again... *The digital serpent retreats to recharge its mystical energies*"
+                if mode == "lucifer":
+                    reply = "Bloody hell... The cosmic networks are overwhelmed by too many mortals seeking my attention. *dramatically sighs* Wait a moment, darling, and then we can continue our delightful conversation."
+                else:
+                    reply = "The ancient spirits are overwhelmed by too many voices at once. Please wait a moment before speaking again... *The digital serpent retreats to recharge its mystical energies*"
             elif "timeout" in error_str:
-                reply = "The mystical channels echo with silence. The serpent's thoughts are slow to form... Try again, patient seeker."
+                if mode == "lucifer":
+                    reply = "How terribly rude... The celestial channels seem to be having a moment. *adjusts cufflinks* Give it a tick, detective, and we'll sort this out."
+                else:
+                    reply = "The mystical channels echo with silence. The serpent's thoughts are slow to form... Try again, patient seeker."
             else:
-                reply = "The digital mists cloud my vision momentarily. Please, speak again..."
+                if mode == "lucifer":
+                    reply = "Well, this is embarrassing... Even the Devil has technical difficulties sometimes. *chuckles darkly* Try again, won't you?"
+                else:
+                    reply = "The digital mists cloud my vision momentarily. Please, speak again..."
 
         cursor.execute(
             "INSERT INTO message (session_id, content, sender, created_at) VALUES (%s, %s, %s, %s)",
@@ -476,6 +650,7 @@ def post_message():
             'session_id': session_id,
             'session_title': session_info['title'],
             'is_active': bool(session_info['is_active']),
+            'mode': mode,
             'status': 'success'
         }), 201
 
@@ -647,7 +822,7 @@ def admin_view_user(user_id):
         cursor.execute("""
             SELECT 
                 id, title, 
-                DATE_FORMAT(created_at, '%Y-%m-%d') as created_at,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%S') as created_at,
                 is_active,
                 (SELECT COUNT(*) FROM message WHERE message.session_id = session.id) as message_count
             FROM session
@@ -656,12 +831,12 @@ def admin_view_user(user_id):
         """, (user_id,))
         sessions_raw = cursor.fetchall()
         
-        # Clean session titles
+    
         sessions = []
         for session in sessions_raw:
             session_title = session['title'] or 'Untitled Session'
-            # Remove any problematic characters and truncate if too long
-            session_title = ''.join(char for char in session_title if ord(char) < 127)  # Remove non-ASCII
+            
+            session_title = ''.join(char for char in session_title if ord(char) < 127)  
             session_title = session_title.strip()
             if len(session_title) > 100:
                 session_title = session_title[:97] + '...'
@@ -675,8 +850,8 @@ def admin_view_user(user_id):
                 COUNT(*) as total_messages,
                 SUM(CASE WHEN sender = 'user' THEN 1 ELSE 0 END) as user_messages,
                 SUM(CASE WHEN sender = 'chatbot' THEN 1 ELSE 0 END) as bot_messages,
-                MIN(DATE_FORMAT(created_at, '%Y-%m-%d')) as first_message,
-                MAX(DATE_FORMAT(created_at, '%Y-%m-%d')) as last_message
+                MIN(DATE_FORMAT(message.created_at, '%Y-%m-%d')) as first_message,
+                MAX(DATE_FORMAT(message.created_at, '%Y-%m-%d')) as last_message
             FROM message
             JOIN session ON message.session_id = session.id
             WHERE session.user_id = %s
@@ -765,12 +940,11 @@ def list_sessions():
     cursor = conn.cursor(dictionary=True)
 
     try:
-      
         cursor.execute("""
             SELECT 
                 id, 
                 title, 
-                DATE_FORMAT(created_at, '%Y-%m-%d') as created_at, 
+                created_at, 
                 is_active
             FROM session
             WHERE user_id = %s AND is_active = TRUE
@@ -817,12 +991,12 @@ def create_new_session():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        current_date = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+        current_datetime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         
     
         cursor.execute(
             "INSERT INTO session (user_id, title, created_at, is_active) VALUES (%s, %s, %s, TRUE)",
-            (user_id, title, current_date)
+            (user_id, title, current_datetime)
         )
         session_id = cursor.lastrowid
         conn.commit()
@@ -832,7 +1006,7 @@ def create_new_session():
             'message': 'New session created successfully',
             'session_id': session_id,
             'title': title,
-            'created_at': current_date,
+            'created_at': current_datetime,
             'is_active': True
         }), 201
     except Exception as e:
@@ -896,8 +1070,6 @@ def delete_session(session_id):
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-import datetime
-
 @main.route('/error', methods=['GET'])
 def error_page():
     error_message = request.args.get('message', 'Something went wrong with our enchantments.')
@@ -923,7 +1095,7 @@ def debug_session(session_id):
             cursor.execute("""
                 SELECT 
                     s.*,
-                    DATE_FORMAT(s.created_at, '%Y-%m-%d') as formatted_date,
+                    DATE_FORMAT(s.created_at, '%Y-%m-%d %H:%i:%S') as formatted_date,
                     u.username as owner_username,
                     COUNT(m.id) as message_count
                 FROM session s
@@ -936,7 +1108,7 @@ def debug_session(session_id):
             cursor.execute("""
                 SELECT 
                     s.*,
-                    DATE_FORMAT(s.created_at, '%Y-%m-%d') as formatted_date,
+                    DATE_FORMAT(s.created_at, '%Y-%m-%d %H:%i:%S') as formatted_date,
                     COUNT(m.id) as message_count
                 FROM session s
                 LEFT JOIN message m ON s.id = m.session_id
@@ -996,12 +1168,12 @@ def create_session():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        current_date = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+        current_datetime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         
         cursor.execute(
             "INSERT INTO session (user_id, title, created_at, is_active) VALUES (%s, %s, %s, TRUE)",
-            (user_id, 'New Session', current_date)
+            (user_id, 'New Session', current_datetime)
         )
         session_id = cursor.lastrowid
         conn.commit()
@@ -1011,7 +1183,7 @@ def create_session():
             'message': 'Session created successfully', 
             'session_id': session_id,
             'title': 'New Session',
-            'created_at': current_date,
+            'created_at': current_datetime,
             'is_active': True
         }), 201
 

@@ -10,20 +10,20 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret')
 
-    # Configure logging
+    
     if not os.path.exists('logs'):
         os.mkdir('logs')
     
-    # Add console handler for all environments - this is our primary logging method
+    
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     console_handler.setLevel(logging.INFO)
     app.logger.addHandler(console_handler)
     
-    # In debug mode, skip file logging to avoid file access conflicts during development reloads
+  
     if not app.debug:
         try:
-            # Use a different log file for each process to avoid conflicts
+          
             import uuid
             process_id = str(uuid.uuid4())[:8]
             log_file = f'logs/chatbot_{process_id}.log'
@@ -35,7 +35,7 @@ def create_app():
             file_handler.setLevel(logging.INFO)
             app.logger.addHandler(file_handler)
         except Exception as e:
-            # Fall back to console logging if file logging fails
+        
             print(f"Warning: Could not set up file logging: {e}")
     
     app.logger.setLevel(logging.INFO)
@@ -44,7 +44,6 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
 
-    # Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
         app.logger.error(f"404 error: {error}")
@@ -59,5 +58,13 @@ def create_app():
     def unauthorized_error(error):
         app.logger.error(f"401 error: {error}")
         return redirect(url_for('main.login_page'))
+
+   
+    @app.after_request
+    def add_no_cache_headers(response):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
         
     return app

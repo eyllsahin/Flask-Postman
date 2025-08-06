@@ -1,0 +1,408 @@
+
+:root.lucifer-mode {
+    --primary-color: #1a0000;
+    --accent-color: #cc0000;
+    --highlight: #ff6666;
+    --text-light: #ffcccc;
+    --fairy-glow: rgba(255, 0, 0, 0.3);
+    --magical-shadow: 0 0 20px rgba(204, 0, 0, 0.4);
+    --card-bg: rgba(139, 0, 0, 0.2);
+    --devil-red: #cc0000;
+    --hell-fire: #ff4500;
+    --devil-gold: #ffd700;
+    --shadow-black: #0a0a0a;
+}
+
+
+body.lucifer-mode {
+    background: linear-gradient(135deg, #1a0000, #330000, #0a0a0a);
+    color: var(--text-light);
+    position: relative;
+}
+
+body.lucifer-mode::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 69, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(204, 0, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(139, 0, 0, 0.05) 0%, transparent 50%);
+    opacity: 0.8;
+    z-index: -1;
+    animation: hellFire 10s ease-in-out infinite alternate;
+}
+
+@keyframes hellFire {
+    0% { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.02); }
+}
+
+.fairy.devil-mode {
+    background: radial-gradient(circle, #ff4500, #cc0000);
+    box-shadow: 
+        0 0 10px #ff4500,
+        0 0 20px #cc0000,
+        0 0 30px #8b0000;
+    animation: devilFloat 8s ease-in-out infinite;
+}
+
+@keyframes devilFloat {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+        opacity: 0.8;
+    }
+    25% { 
+        transform: translateY(-20px) rotate(90deg); 
+        opacity: 1;
+    }
+    50% { 
+        transform: translateY(-15px) rotate(180deg); 
+        opacity: 0.9;
+    }
+    75% { 
+        transform: translateY(-25px) rotate(270deg); 
+        opacity: 1;
+    }
+}
+
+
+.lucifer-mode .thorn-decoration {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.thorn {
+    position: absolute;
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, #cc0000, #8b0000);
+    transform-origin: bottom;
+    opacity: 0.3;
+}
+
+.thorn:nth-child(1) { top: 10%; left: 5%; transform: rotate(15deg); }
+.thorn:nth-child(2) { top: 20%; left: 95%; transform: rotate(-15deg); }
+.thorn:nth-child(3) { top: 60%; left: 3%; transform: rotate(25deg); }
+.thorn:nth-child(4) { top: 80%; left: 97%; transform: rotate(-25deg); }
+.thorn:nth-child(5) { top: 40%; left: 2%; transform: rotate(-10deg); }
+.thorn:nth-child(6) { top: 70%; left: 98%; transform: rotate(10deg); }
+
+/* Fire effects */
+.lucifer-mode .fire-effects {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fire {
+    position: absolute;
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(to top, #ff4500, #ffd700, #ff6347);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform-origin: bottom;
+    animation: fireFlicker 2s ease-in-out infinite;
+    box-shadow: 
+        0 0 10px #ff4500,
+        0 0 20px #ff6347,
+        0 0 30px #ffd700;
+}
+
+@keyframes fireFlicker {
+    0%, 100% { 
+        transform: scale(1) rotate(-2deg);
+        opacity: 0.8;
+    }
+    25% { 
+        transform: scale(1.1) rotate(2deg);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(0.9) rotate(-1deg);
+        opacity: 0.9;
+    }
+    75% { 
+        transform: scale(1.05) rotate(1deg);
+        opacity: 1;
+    }
+}
+
+/* Container styling */
+.lucifer-mode .container {
+    background: rgba(26, 0, 0, 0.1);
+    border: 1px solid var(--devil-red);
+    box-shadow: var(--magical-shadow);
+}
+
+/* Sidebar styling */
+.lucifer-mode .sidebar {
+    background: linear-gradient(180deg, rgba(26, 0, 0, 0.9), rgba(51, 0, 0, 0.8));
+    border-right: 2px solid var(--devil-red);
+    box-shadow: inset -5px 0 15px rgba(204, 0, 0, 0.2);
+}
+
+.lucifer-mode .sidebar h2 {
+    color: var(--devil-gold);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: 'Crimson Text', serif;
+}
+
+.lucifer-mode .sidebar h2::before {
+    content: "🔥 ";
+}
+
+.lucifer-mode .sidebar h2::after {
+    content: " 🔥";
+}
+
+.lucifer-mode button,
+.lucifer-mode .magical-btn {
+    background: linear-gradient(45deg, var(--devil-red), var(--hell-fire));
+    border: 2px solid var(--devil-gold);
+    color: var(--devil-gold);
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    box-shadow: 
+        0 4px 15px rgba(204, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 215, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.lucifer-mode button:hover,
+.lucifer-mode .magical-btn:hover {
+    background: linear-gradient(45deg, var(--hell-fire), var(--devil-red));
+    transform: translateY(-2px);
+    box-shadow: 
+        0 6px 20px rgba(204, 0, 0, 0.4),
+        inset 0 1px 3px rgba(255, 215, 0, 0.3);
+}
+
+/* Chat area */
+.lucifer-mode .chat-area {
+    background: rgba(26, 0, 0, 0.3);
+    border-left: 2px solid var(--devil-red);
+}
+
+.lucifer-mode .chat-header {
+    border-bottom: 2px solid var(--devil-red);
+    background: linear-gradient(90deg, rgba(204, 0, 0, 0.1), rgba(255, 69, 0, 0.1));
+}
+
+.lucifer-mode #chatTitle {
+    color: var(--devil-gold);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: devilGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes devilGlow {
+    0% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.3); }
+    100% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.6); }
+}
+
+/* Messages */
+.lucifer-mode #chatMessages {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--devil-red);
+    border-radius: 15px;
+}
+
+
+.lucifer-mode #chatMessages:empty::before {
+    content: "🔥 Welcome to the Infernal Depths 🔥\A\A Express your darkest thoughts and let the demonic conversation ignite...";
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: pre-line;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    text-align: center;
+    color: var(--devil-gold);
+    font-family: 'Crimson Text', serif;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    font-weight: bold;
+    padding: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: hellishPulse 3s ease-in-out infinite alternate;
+    pointer-events: none; 
+}
+ 
+  
+  
+.lucifer-mode .message.user {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.8), rgba(26, 0, 0, 0.8));
+    border-left: 4px solid var(--hell-fire);
+    color: #a91d1d !important;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 2px 10px rgba(255, 69, 0, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.lucifer-mode .message.bot {
+    background: linear-gradient(135deg, rgba(75, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
+    border-left: 4px solid var(--devil-gold);
+    color: #771010 !important;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(5px);
+    position: relative;
+}
+
+.lucifer-mode .message.bot::before {
+    content: "😈";
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    animation: devilSmirk 5s ease-in-out infinite;
+}
+
+@keyframes devilSmirk {
+    0%, 90%, 100% { transform: translateY(-50%) rotate(0deg); }
+    5%, 15% { transform: translateY(-50%) rotate(-5deg); }
+    10% { transform: translateY(-50%) rotate(5deg); }
+}
+
+/* Input area */
+.lucifer-mode .chat-input {
+    background: rgba(26, 0, 0, 0.6);
+    border: 2px solid var(--devil-red);
+    border-radius: 25px;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.lucifer-mode .chat-input input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--devil-red);
+    color: var(--text-light);
+    border-radius: 20px;
+}
+
+.lucifer-mode .chat-input input::placeholder {
+    color: rgba(255, 204, 204, 0.7);
+    font-style: italic;
+}
+
+.lucifer-mode .chat-input input:focus {
+    border-color: var(--devil-gold);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    outline: none;
+}
+
+/* Mode selector */
+.lucifer-mode .mode-select {
+    background: rgba(26, 0, 0, 0.8);
+    border: 2px solid var(--devil-red);
+    color: var(--devil-gold);
+}
+
+.lucifer-mode .mode-select:hover {
+    background: rgba(51, 0, 0, 0.9);
+    border-color: var(--devil-gold);
+}
+
+/* Session list */
+.lucifer-mode .session-item {
+    background: rgba(26, 0, 0, 0.4);
+    border: 1px solid var(--devil-red);
+    color: var(--text-light);
+}
+
+.lucifer-mode .session-item:hover {
+    background: rgba(51, 0, 0, 0.6);
+    border-color: var(--devil-gold);
+    transform: translateX(5px);
+}
+
+.lucifer-mode .session-item.active {
+    background: linear-gradient(135deg, rgba(204, 0, 0, 0.3), rgba(255, 69, 0, 0.2));
+    border-color: var(--devil-gold);
+}
+
+/* Loading message */
+.lucifer-mode .loading-message {
+    color: var(--devil-gold);
+    font-style: italic;
+    animation: hellishPulse 2s ease-in-out infinite;
+}
+
+@keyframes hellishPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* Scrollbar */
+.lucifer-mode #chatMessages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.lucifer-mode #chatMessages::-webkit-scrollbar-track {
+    background: rgba(26, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.lucifer-mode #chatMessages::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--devil-red), var(--hell-fire));
+    border-radius: 4px;
+    box-shadow: inset 0 1px 3px rgba(255, 215, 0, 0.2);
+}
+
+.lucifer-mode #chatMessages::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--hell-fire), var(--devil-red));
+}
+
+/* Logo replacement for Lucifer mode */
+.lucifer-mode .fraude-logo {
+    filter: 
+        hue-rotate(0deg) 
+        saturate(2) 
+        brightness(0.8) 
+        drop-shadow(0 0 10px #cc0000);
+    animation: devilGlow 3s ease-in-out infinite alternate;
+}
+
+/* Special effects */
+.lucifer-mode::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 100px,
+            rgba(204, 0, 0, 0.01) 101px,
+            rgba(204, 0, 0, 0.01) 102px
+        );
+    pointer-events: none;
+    z-index: 1;
+    animation: hellishScan 20s linear infinite;
+}
+
+@keyframes hellishScan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

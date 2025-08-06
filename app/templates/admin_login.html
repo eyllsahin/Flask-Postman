@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+    <style>
+        body { font-family: Arial; margin: 50px; background: #2c5530; color: white; }
+        .login-form { max-width: 400px; margin: 0 auto; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #8b4513; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #a0522d; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: green; }
+        .error { background: red; }
+    </style>
+</head>
+<body>
+    <div class="login-form">
+        <h2>Admin Login</h2>
+        <p>Use: admin@example.com / admin (if you haven't changed it)</p>
+        
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" value="admin@example.com" required>
+            <input type="password" id="password" placeholder="Password" value="admin" required>
+            <button type="submit">Login as Admin</button>
+        </form>
+        
+        <div id="message"></div>
+        
+        <p><a href="/admin" style="color: #c0d8c0;">Go to Admin Dashboard</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success">Login successful! Redirecting...</div>';
+                    
+                    // Store token
+                    localStorage.setItem('token', data.token);
+                    
+                    // Redirect to admin
+                    setTimeout(() => {
+                        window.location.href = '/admin';
+                    }, 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
