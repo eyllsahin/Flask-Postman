@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect
-from .db import get_db_connection
+from .db_utils import get_db_connection
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -575,24 +575,25 @@ def post_message():
             else:
                 session_id = session['id']
 
+        # Get mode before using it
+        mode = data.get('mode', 'fraude')
+        
         current_date = datetime.datetime.utcnow().strftime('%Y-%m-%d')
         
         cursor.execute(
-            "INSERT INTO message (session_id, content, sender, created_at) VALUES (%s, %s, %s, %s)",
-            (session_id, data['content'], 'user', current_date)
+            "INSERT INTO message (session_id, content, sender, created_at, mode) VALUES (%s, %s, %s, %s, %s)",
+            (session_id, data['content'], 'user', current_date, mode)
         )
         conn.commit()  
 
         cursor.execute(
-            "SELECT sender, content FROM message WHERE session_id = %s ORDER BY created_at ASC",
+            "SELECT sender, content, mode FROM message WHERE session_id = %s ORDER BY created_at ASC",
             (session_id,)
         )
         history = cursor.fetchall()
         
         
-        conversation_history = [{"sender": msg["sender"], "content": msg["content"]} for msg in history]
-        
-        mode = data.get('mode', 'fraude')
+        conversation_history = [{"sender": msg["sender"], "content": msg["content"], "mode": msg.get("mode", "fraude")} for msg in history]
         
         try:
             reply = chat_with_gemini(conversation_history, mode)
@@ -618,8 +619,8 @@ def post_message():
                     reply = "The digital mists cloud my vision momentarily. Please, speak again..."
 
         cursor.execute(
-            "INSERT INTO message (session_id, content, sender, created_at) VALUES (%s, %s, %s, %s)",
-            (session_id, reply, 'chatbot', current_date)
+            "INSERT INTO message (session_id, content, sender, created_at, mode) VALUES (%s, %s, %s, %s, %s)",
+            (session_id, reply, 'chatbot', current_date, mode)
         )
         conn.commit()
 
@@ -729,6 +730,7 @@ def get_messages():
                 id, 
                 sender, 
                 content, 
+                mode,
                 DATE_FORMAT(created_at, '%Y-%m-%d') as created_at 
             FROM message 
             WHERE session_id = %s 
@@ -893,6 +895,7 @@ def admin_user_chats(user_id):
                 message.session_id,
                 message.content,
                 message.sender,
+                message.mode,
                 DATE_FORMAT(message.created_at, '%Y-%m-%d') as created_at,
                 session.title as session_title
             FROM message
@@ -1122,7 +1125,7 @@ def debug_session(session_id):
 
         cursor.execute("""
             SELECT 
-                id, sender, content, 
+                id, sender, content, mode,
                 DATE_FORMAT(created_at, '%Y-%m-%d') as created_at 
             FROM message 
             WHERE session_id = %s 

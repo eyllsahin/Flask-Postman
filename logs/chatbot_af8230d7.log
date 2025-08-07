@@ -1,0 +1,2 @@
+2025-08-06 11:48:54,984 INFO: Chatbot startup [in /app/app/__init__.py:42]
+2025-08-06 11:50:39,789 ERROR: 404 error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /app/app/__init__.py:49]

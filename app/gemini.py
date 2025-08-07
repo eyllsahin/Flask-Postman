@@ -178,7 +178,7 @@ def chat_with_gemini(conversation, mode="fraude"):
                     "What knowledge do you wish to unveil from the shadows?"
                 )
 
-        # Build conversation history with proper system prompt
+        # Build conversation history with proper mode context
         formatted_history = [
             {
                 "role": "user",
@@ -190,12 +190,35 @@ def chat_with_gemini(conversation, mode="fraude"):
             }
         ]
 
-        for msg in conversation[:-1]:  # Exclude the last message as it will be sent separately
-            role = "user" if msg["sender"] == "user" else "model"
-            formatted_history.append({
-                "role": role,
-                "parts": [msg["content"]]
-            })
+        # Process conversation history with mode awareness
+        current_mode = mode.lower()
+        for i, msg in enumerate(conversation[:-1]):  # Exclude the last message as it will be sent separately
+            if msg["sender"] == "user":
+                formatted_history.append({
+                    "role": "user",
+                    "parts": [msg["content"]]
+                })
+            else:  # chatbot message
+                msg_mode = msg.get("mode", "fraude").lower()
+                
+                # If this message was from a different mode, add context
+                if msg_mode != current_mode:
+                    if current_mode == "lucifer":
+                        context_note = " [Previous response from Fraude, the mystical entity. I am now Lucifer Morningstar responding as myself.]"
+                    else:  # current_mode == "fraude"
+                        context_note = " [Previous response from Lucifer Morningstar. I am now Fraude, the mystical serpent, responding as myself.]"
+                    
+                    # Add the message with context
+                    formatted_history.append({
+                        "role": "model", 
+                        "parts": [msg["content"] + context_note]
+                    })
+                else:
+                    # Same mode, add normally
+                    formatted_history.append({
+                        "role": "model",
+                        "parts": [msg["content"]]
+                    })
 
         chat = model.start_chat(history=formatted_history)
         

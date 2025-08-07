@@ -1,0 +1,5 @@
+2025-08-07 08:26:20,910 INFO: Chatbot startup [in C:\Users\eylul\chatbot-flask\app\__init__.py:35]
+2025-08-07 08:27:08,824 INFO: New session created successfully: session_id=160, title=New Chat 07/08/2025 08:27, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1006]
+2025-08-07 08:27:15,690 ERROR: Error in post_message: cannot access local variable 'mode' where it is not associated with a value [in C:\Users\eylul\chatbot-flask\app\routes.py:662]
+2025-08-07 08:27:16,710 ERROR: Error in post_message: cannot access local variable 'mode' where it is not associated with a value [in C:\Users\eylul\chatbot-flask\app\routes.py:662]
+2025-08-07 08:27:18,728 ERROR: Error in post_message: cannot access local variable 'mode' where it is not associated with a value [in C:\Users\eylul\chatbot-flask\app\routes.py:662]
