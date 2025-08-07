@@ -1,24 +1,22 @@
-# Git and version control
+
 .git
 .gitignore
 
-# Environment files
 .env
 
-# Virtual environments
+
 .venv
 venv/
 env/
 ENV/
 
-# Python cache and compiled files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 
-# Testing and coverage
+
 pip-log.txt
 pip-delete-this-directory.txt
 .tox
@@ -30,22 +28,20 @@ coverage.xml
 *.cover
 .pytest_cache/
 
-# Logs
 *.log
 logs/*.log
 
-# Documentation
+
 README.md
 
-# IDE files
+
 .vscode/
 .idea/
 
-# OS files
+
 .DS_Store
 Thumbs.db
 
-# Docker files (don't copy into container)
 Dockerfile
 docker-compose.yml
 .dockerignore

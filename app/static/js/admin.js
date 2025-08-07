@@ -6,36 +6,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     history.pushState(null, null, window.location.href);
     window.addEventListener("popstate", () => {
-        console.log("Back button pressed, checking auth");
         const token = localStorage.getItem("token");
         if (!token) {
             window.location.replace("/login");
         } else {
-            
             history.pushState(null, null, window.location.href);
         }
     });
 
-    
-    window.addEventListener('pageshow', function(event) {
+    window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
-            
-            console.log("Page restored from cache, checking auth");
             const currentToken = localStorage.getItem("token");
             if (!currentToken) {
-                
                 window.location.replace("/login");
             }
         }
     });
 
-    
     setInterval(() => {
         const currentToken = localStorage.getItem("token");
         if (!currentToken) {
             window.location.href = "/login";
         }
-    }, 3000000); 
+    }, 3000000);
 
     const sessionList = document.getElementById('sessionList');
     const pageInfo = document.getElementById('pageInfo');
@@ -46,26 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1;
     const limit = 10;
 
-    
     function formatDate(dateStr) {
         try {
-            
             if (!dateStr) return 'N/A';
-            
-            
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 return dateStr;
             }
-            
-            
             const date = new Date(dateStr);
-            if (isNaN(date.getTime())) {
-                return dateStr; 
-            }
+            if (isNaN(date.getTime())) return dateStr;
             return date.toLocaleString();
         } catch (e) {
             console.error('Date formatting error:', e);
-            return dateStr; 
+            return dateStr;
         }
     }
 
@@ -118,10 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     logoutBtn.addEventListener('click', async () => {
-        console.log('Logout function called from admin.js');
-        
         try {
-            
             await fetch("/logout", {
                 method: "POST",
                 headers: {
@@ -132,17 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.log("Logout request failed, but continuing with client-side cleanup");
         }
-        
-        
+
         localStorage.removeItem('token');
         sessionStorage.clear();
-        
-        
-        document.cookie.split(";").forEach(function(c) { 
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+
+        document.cookie.split(";").forEach(function (c) {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
         });
-        
-        
+
         if ('caches' in window) {
             caches.keys().then(names => {
                 names.forEach(name => {
@@ -150,16 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
-        
-        
-        console.log('Redirecting to login from admin.js...');
+
         window.history.replaceState(null, null, "/login");
         window.location.replace('/login');
     });
 
     loadSessions();
 
-    
     const modal = document.getElementById('chatModal');
     const closeBtn = document.querySelector('.close');
 
@@ -170,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
- 
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -178,38 +153,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    window.openChatModal = function() {
+    window.openChatModal = function () {
         modal.style.display = 'block';
         document.body.classList.add('modal-open');
     };
 
-    
     function recalculatePageHeight() {
-     
-        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const oldScrollHeight = document.documentElement.scrollHeight;
-        const scrollPercentage = oldScrollHeight > 0 ? currentScrollTop / oldScrollHeight : 0;
-        
-        
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-        
-        document.body.offsetHeight;
-        
-        
         document.documentElement.style.overflow = 'auto';
         document.body.style.overflow = 'visible';
         document.body.style.height = 'auto';
         document.documentElement.style.height = 'auto';
-        
-        
+
         const adminContainer = document.querySelector('.admin-container');
         if (adminContainer) {
             adminContainer.style.maxHeight = 'none';
             adminContainer.style.height = 'auto';
         }
-        
+
         const height = Math.max(
             document.body.scrollHeight,
             document.body.offsetHeight,
@@ -217,42 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.scrollHeight,
             document.documentElement.offsetHeight
         );
-        
-        
+
         document.body.style.minHeight = height + 'px';
-        
-        
+
         window.dispatchEvent(new Event('resize'));
-        
-     
-        setTimeout(() => {
-            const newScrollHeight = document.documentElement.scrollHeight;
-            const newMaxScroll = newScrollHeight - window.innerHeight;
-            const newScrollTop = Math.min(scrollPercentage * newScrollHeight, Math.max(0, newMaxScroll));
-            
-            
-            window.scrollTo(0, 0);
-            setTimeout(() => {
-                window.scrollTo(0, newScrollTop);
-                console.log('Main scrollbar resized - Old height:', oldScrollHeight, 'New height:', newScrollHeight);
-            }, 20);
-            
-            setTimeout(() => {
-                document.body.style.minHeight = 'auto';
-            }, 100);
-        }, 50);
-        
-        console.log('Page height recalculated:', height, 'Current scroll:', currentScrollTop, 'Max scroll:', document.documentElement.scrollHeight - window.innerHeight);
     }
 
-    
     const observer = new MutationObserver((mutations) => {
         let shouldRecalculate = false;
-        
+
         mutations.forEach((mutation) => {
-            
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                
                 for (let node of mutation.addedNodes) {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         shouldRecalculate = true;
@@ -260,20 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else if (mutation.type === 'attributes') {
-               
                 if (mutation.attributeName === 'style' || mutation.attributeName === 'class') {
                     shouldRecalculate = true;
                 }
             }
         });
-        
+
         if (shouldRecalculate) {
-           
             clearTimeout(window.heightRecalcTimeout);
             window.heightRecalcTimeout = setTimeout(recalculatePageHeight, 100);
         }
     });
-
 
     observer.observe(document.body, {
         childList: true,
@@ -282,40 +214,17 @@ document.addEventListener('DOMContentLoaded', () => {
         attributeFilter: ['style', 'class']
     });
 
-    
     document.addEventListener('click', (event) => {
-       
-        if (event.target.matches('button, .btn, .expand, .view, .show, .toggle') || 
+        if (event.target.matches('button, .btn, .expand, .view, .show, .toggle') ||
             event.target.closest('button, .btn, .expand, .view, .show, .toggle')) {
-            
             setTimeout(() => {
                 recalculatePageHeight();
-             
-                setTimeout(() => {
-                 
-                    const currentScroll = window.pageYOffset;
-                    window.scrollTo(0, 0);
-                    setTimeout(() => {
-                        window.scrollTo(0, currentScroll);
-                    }, 10);
-                }, 100);
-            }, 200);
+            }, 300);
         }
     });
 
-    
-    window.resetScrollRange = function() {
-        const currentScroll = window.pageYOffset;
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => {
-            document.body.style.overflow = 'auto';
-            recalculatePageHeight();
-            
-            window.scrollTo(0, 0);
-            setTimeout(() => {
-                window.scrollTo(0, currentScroll);
-            }, 10);
-        }, 10);
+    window.resetScrollRange = function () {
+        recalculatePageHeight();
     };
 
     recalculatePageHeight();

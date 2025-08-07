@@ -1,0 +1,4 @@
+2025-08-07 11:18:39,799 INFO: Chatbot startup [in C:\Users\eylul\chatbot-flask\app\__init__.py:35]
+2025-08-07 11:18:58,286 ERROR: Error in post_message: 1054 (42S22): Unknown column 'mode' in 'field list' [in C:\Users\eylul\chatbot-flask\app\routes.py:663]
+2025-08-07 11:18:59,310 ERROR: Error in post_message: 1054 (42S22): Unknown column 'mode' in 'field list' [in C:\Users\eylul\chatbot-flask\app\routes.py:663]
+2025-08-07 11:19:01,336 ERROR: Error in post_message: 1054 (42S22): Unknown column 'mode' in 'field list' [in C:\Users\eylul\chatbot-flask\app\routes.py:663]

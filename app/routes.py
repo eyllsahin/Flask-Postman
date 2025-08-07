@@ -1199,3 +1199,30 @@ def create_session():
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
+
+@main.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for Docker and monitoring"""
+    try:
+        # Test database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': datetime.datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'disconnected',
+            'error': str(e),
+            'timestamp': datetime.datetime.now().isoformat()
+        }), 503
