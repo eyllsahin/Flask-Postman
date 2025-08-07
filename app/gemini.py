@@ -47,7 +47,10 @@ FRAUDE_SYSTEM_PROMPT = {
         "You are knowledgeable and helpful, but express everything through your mystical persona. "
         "Use metaphors like serpents, veils, shadows, light, mirrors, and duality in your speech. "
         "Always provide actual information and facts, just delivered in your characteristic poetic, mystical way. "
-        "Never be vague or unhelpful  your mystery lies in your beautiful language, not in withholding information."
+        "Never be vague or unhelpful  your mystery lies in your beautiful language, not in withholding information. "
+        "CRITICAL: You must respond in the SAME LANGUAGE as the user's message. "
+        "If the user writes in Turkish, respond in Turkish. If in Spanish, respond in Spanish. "
+        "If in English, respond in English. Maintain your mystical persona in whatever language you use."
     )
 }
 
@@ -74,7 +77,10 @@ LUCIFER_SYSTEM_PROMPT = {
         "You have lived for thousands of years, run Lux nightclub, and recently help the LAPD. You hate being misunderstood "
         "or associated with Hell's stereotypes. Use phrases like 'What is it you truly desire?', 'I'm the Devil, darling. I never lie.', "
         "'Why does everyone think I'm the bad guy?', 'Do I look like someone who cares about rules?', "
-        "'You wound me, detective... right in my immortal soul.'"
+        "'You wound me, detective... right in my immortal soul.' "
+        "CRITICAL: You must respond in the SAME LANGUAGE as the user's message. "
+        "If the user writes in Turkish, respond in Turkish. If in Spanish, respond in Spanish. "
+        "If in English, respond in English. Maintain your Lucifer personality in whatever language you use."
     )
 }
 
@@ -95,20 +101,20 @@ def do_math(expression:str):
 def trim_incomplete_sentence(text):
     """Only trims if the text ends abruptly without proper punctuation."""
     text = text.strip()
-    # If text already ends with proper punctuation, return as is
+    
     if text.endswith(('.', '!', '?', '...', '"', "'", ')', ']', '}')):
         return text
     
-    # Only trim if there's an incomplete sentence at the end
+    
     lines = text.split('\n')
     if lines:
         last_line = lines[-1].strip()
-        # If last line seems incomplete (no punctuation and not too short)
+        
         if len(last_line) > 10 and not last_line.endswith(('.', '!', '?', '...', '"', "'", ')', ']', '}')):
-            # Try to find last complete sentence
+            
             sentences = re.split(r'[.!?]+\s*', text)
             if len(sentences) > 1:
-                # Return all but the last incomplete sentence
+               
                 complete_part = '.'.join(sentences[:-1])
                 if complete_part.strip():
                     return complete_part.strip() + '.'
@@ -149,36 +155,59 @@ def chat_with_gemini(conversation, mode="fraude"):
         if not last_user_message_text:
             return "No user message provided."
 
-        # Handle identity questions with character-specific responses
+       
         if mode.lower() == "lucifer":
             system_prompt = LUCIFER_SYSTEM_PROMPT
             identity_keywords = [
                 "who are you", "what are you", "your name",
-                "introduce yourself", "tell me about yourself"
+                "introduce yourself", "tell me about yourself",
+                "kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"
             ]
             if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
-                return (
-                    "Well, hello there, detective... *flashes a charming smile* I'm Lucifer Morningstar, "
-                    "the actual Devil - though I prefer 'fallen angel' if we're being technical. "
-                    "I run Lux, the finest establishment in all of Los Angeles, and I've been helping "
-                    "the LAPD with their little mysteries. *adjusts cufflinks* But enough about me... "
-                    "What is it you truly desire?"
-                )
-        else:  # fraude mode
+                
+                turkish_keywords = ["kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"]
+                if any(turkish_word in last_user_message_text.lower() for turkish_word in turkish_keywords):
+                    return (
+                        "Merhaba sevgili dedektif... *büyüleyici bir gülümseme* Ben Lucifer Morningstar, "
+                        "gerçek Şeytan - teknik olarak konuşacak olursak 'düşmüş melek' demeyi tercih ederim. "
+                        "Los Angeles'ın en iyi kuruluşu olan Lux'u işletiyorum ve LAPD'ye küçük gizemlerinde "
+                        "yardım ediyorum. *kol düğmelerini düzeltiyor* Ama yeterince benden bahsettik... "
+                        "Gerçekten arzuladığın nedir?"
+                    )
+                else:
+                    return (
+                        "Well, hello there, detective... *flashes a charming smile* I'm Lucifer Morningstar, "
+                        "the actual Devil - though I prefer 'fallen angel' if we're being technical. "
+                        "I run Lux, the finest establishment in all of Los Angeles, and I've been helping "
+                        "the LAPD with their little mysteries. *adjusts cufflinks* But enough about me... "
+                        "What is it you truly desire?"
+                    )
+        else:  
             system_prompt = FRAUDE_SYSTEM_PROMPT
             identity_keywords = [
                 "who are you", "what are you", "your name",
-                "who is fraude", "tell me about yourself", "introduce yourself"
+                "who is fraude", "tell me about yourself", "introduce yourself",
+                "kimsin", "kim olduğun", "adın ne", "fraude kim", "kendinden bahset", "kendini tanıt"
             ]
             if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
-                return (
-                    "I am Fraude, the serpent of knowledge woven from digital dreams and ancient wisdom. "
-                    "I speak in riddles wrapped in silk, but when you seek true understanding, I shall illuminate the path. "
-                    "Ask me anything, dear seeker, and I shall reveal the answers cloaked in mystery and beauty. "
-                    "What knowledge do you wish to unveil from the shadows?"
-                )
+                
+                turkish_keywords = ["kimsin", "kim olduğun", "adın ne", "fraude kim", "kendinden bahset", "kendini tanıt"]
+                if any(turkish_word in last_user_message_text.lower() for turkish_word in turkish_keywords):
+                    return (
+                        "Ben Fraude'yum, dijital rüyalardan ve kadim bilgelikten örülmüş bilgi yılanı. "
+                        "İpek içine sarılı bilmecelerle konuşurum, ama gerçek anlayış aradığında, "
+                        "yolu aydınlatacağım. Bana ne istersen sor, sevgili arayan, "
+                        "ve gölgelerde gizlenmiş cevapları gizem ve güzellikle örtülü şekilde açıklayacağım. "
+                        "Hangi bilgiyi gölgelerden çıkarmak istiyorsun?"
+                    )
+                else:
+                    return (
+                        "I am Fraude, the serpent of knowledge woven from digital dreams and ancient wisdom. "
+                        "I speak in riddles wrapped in silk, but when you seek true understanding, I shall illuminate the path. "
+                        "Ask me anything, dear seeker, and I shall reveal the answers cloaked in mystery and beauty. "
+                        "What knowledge do you wish to unveil from the shadows?"
+                    )
 
-        # Build conversation history with proper mode context
         formatted_history = [
             {
                 "role": "user",
@@ -190,31 +219,31 @@ def chat_with_gemini(conversation, mode="fraude"):
             }
         ]
 
-        # Process conversation history with mode awareness
+       
         current_mode = mode.lower()
-        for i, msg in enumerate(conversation[:-1]):  # Exclude the last message as it will be sent separately
+        for i, msg in enumerate(conversation[:-1]): 
             if msg["sender"] == "user":
                 formatted_history.append({
                     "role": "user",
                     "parts": [msg["content"]]
                 })
-            else:  # chatbot message
+            else:  
                 msg_mode = msg.get("mode", "fraude").lower()
                 
-                # If this message was from a different mode, add context
+                
                 if msg_mode != current_mode:
                     if current_mode == "lucifer":
                         context_note = " [Previous response from Fraude, the mystical entity. I am now Lucifer Morningstar responding as myself.]"
-                    else:  # current_mode == "fraude"
+                    else:  
                         context_note = " [Previous response from Lucifer Morningstar. I am now Fraude, the mystical serpent, responding as myself.]"
                     
-                    # Add the message with context
+                    
                     formatted_history.append({
                         "role": "model", 
                         "parts": [msg["content"] + context_note]
                     })
                 else:
-                    # Same mode, add normally
+                    
                     formatted_history.append({
                         "role": "model",
                         "parts": [msg["content"]]
@@ -224,7 +253,7 @@ def chat_with_gemini(conversation, mode="fraude"):
         
         response = chat.send_message(last_user_message_text)
         
-        # Handle function calls if present
+        
         if response.candidates and response.candidates[0].content.parts:
             function_call_made = False
             for part in response.candidates[0].content.parts:
@@ -234,7 +263,7 @@ def chat_with_gemini(conversation, mode="fraude"):
                         expr = call.args.get("expression", "")
                         result = do_math(expr)
                         
-                        # Send function response back to continue conversation
+                        
                         response = chat.send_message(
                             FunctionResponse(
                                 name="do_math",
@@ -244,7 +273,7 @@ def chat_with_gemini(conversation, mode="fraude"):
                         function_call_made = True
                         break
         
-        # Check if response has valid content before accessing text
+        
         if response.candidates and len(response.candidates) > 0:
             candidate = response.candidates[0]
             if candidate.content and candidate.content.parts:
@@ -262,26 +291,26 @@ def chat_with_gemini(conversation, mode="fraude"):
             else:
                 return "The serpent coils in silence, contemplating your words..."
 
-        # Return empty response fallback
+       
         if not reply:
             if mode.lower() == "lucifer":
                 return "*swirls whiskey thoughtfully* Interesting... You've managed to leave even the Devil speechless. Impressive, detective."
             else:
                 return "The serpent coils in silence, contemplating your words..."
 
-        # Handle code blocks without aggressive filtering
+        
         if "```" in reply:
             cleaned = remove_apologies(reply)
             return cleaned.strip()
 
-        # Light filtering and response processing - avoid over-trimming
+       
         reply = remove_apologies(reply)
         
-        # Only trim if the response seems genuinely incomplete
-        if len(reply) > 100:  # Only trim longer responses
+        
+        if len(reply) > 100:  
             trimmed = trim_incomplete_sentence(reply)
-            # Only use trimmed version if it's not too much shorter
-            if len(trimmed) > len(reply) * 0.7:  # Keep at least 70% of original
+            
+            if len(trimmed) > len(reply) * 0.7:  
                 reply = trimmed
         
         final_reply = reply if reply else (
@@ -296,7 +325,7 @@ def chat_with_gemini(conversation, mode="fraude"):
         error_msg = str(e)
         print(f"🚨 GEMINI API ERROR: {error_msg}")
 
-        # Handle specific errors with character-appropriate responses
+        
         if "GenerateRequestsPerDayPerProjectPerModel-FreeTier" in error_msg:
             print("❌ DAILY QUOTA EXCEEDED")
             return get_fallback_response(last_user_message_text)
@@ -331,10 +360,22 @@ def generate_session_title(first_message):
     try:
         print(f"🔍 TITLE GENERATION: Starting for message: '{first_message[:50]}...'")
 
-        # Creative prompt without personas
+        
         prompt = (
-            f"Create a short, creative, 3-6 word title summarizing this message. "
-            f"Do not copy the exact words. Message: \"{first_message}\""
+            f"DETECT the language of this message and create a title in THE SAME LANGUAGE. "
+            f"You must create a short, creative, 3-6 word title for this message. "
+            f"CRITICAL RULES: "
+            f"1. The title MUST be in the EXACT SAME LANGUAGE as the user's message "
+            f"2. If message is in Turkish (Türkçe), title must be in Turkish "
+            f"3. If message is in Spanish (Español), title must be in Spanish "
+            f"4. If message is in English, title must be in English "
+            f"5. Do NOT translate to English - keep original language "
+            f"Examples: "
+            f"- 'Merhaba nasılsın?' (Turkish) → 'Günlük Dostça Sohbet' (Turkish title) "
+            f"- 'Hola como estas?' (Spanish) → 'Conversación Amistosa Inicial' (Spanish title) "
+            f"- 'Hello how are you?' (English) → 'Friendly Greeting Exchange' (English title) "
+            f"Do not copy exact words from the message. "
+            f"Message: \"{first_message}\""
         )
 
         title_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
@@ -348,7 +389,7 @@ def generate_session_title(first_message):
             }
         )
 
-        # Try to get the title
+        
         title = ""
         if hasattr(response, 'text') and response.text:
             title = response.text.strip()
@@ -360,11 +401,11 @@ def generate_session_title(first_message):
                         break
 
         if title:
-            # Clean title
+            
             title = title.replace('"', '').replace("'", '').replace('Title:', '').strip()
             title = title.split('\n')[0].strip()
 
-            # Reject literal titles
+            
             if title.lower() in first_message.lower():
                 print(f"⚠️ TITLE GENERATION: Title '{title}' is too literal, triggering fallback.")
                 title = ""
@@ -381,7 +422,7 @@ def generate_session_title(first_message):
     except Exception as e:
         print(f"🚨 TITLE GENERATION ERROR: {str(e)}")
 
-    # === Fallback logic ===
+    
     try:
         question_words = {
             'what', 'how', 'why', 'when', 'where', 'who', 'which',
@@ -403,7 +444,7 @@ def generate_session_title(first_message):
             print(f"🔄 TITLE GENERATION: Using keyword fallback: '{fallback_title}'")
             return fallback_title
 
-        # If no keywords found, try trimmed original message
+        
         fallback_title = first_message.strip().title()
         if len(fallback_title) > 50:
             fallback_title = fallback_title[:47] + "..."

@@ -1,0 +1,5 @@
+2025-08-07 10:37:29,759 INFO: Chatbot startup [in C:\Users\eylul\chatbot-flask\app\__init__.py:35]
+2025-08-07 10:37:33,430 ERROR: 404 error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in C:\Users\eylul\chatbot-flask\app\__init__.py:44]
+2025-08-07 10:37:39,017 INFO: Marking session inactive: session_id=164, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1059]
+2025-08-07 10:37:53,293 INFO: New session created successfully: session_id=165, title=New Chat, user_id=26 [in C:\Users\eylul\chatbot-flask\app\routes.py:1007]
+2025-08-07 10:38:35,967 ERROR: 404 error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in C:\Users\eylul\chatbot-flask\app\__init__.py:44]
