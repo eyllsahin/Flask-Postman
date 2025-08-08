@@ -31,8 +31,14 @@ tools=[
 
 
 model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash",
-    tools=tools
+    model_name="gemini-2.5-flash",  # Using fastest available model
+    tools=tools,
+    generation_config={
+        "temperature": 0.7,
+        "max_output_tokens": 1024,  # Reduced for faster responses
+        "top_p": 0.8,
+        "top_k": 40
+    }
 )
 
 FRAUDE_SYSTEM_PROMPT = {
@@ -84,6 +90,31 @@ LUCIFER_SYSTEM_PROMPT = {
     )
 }
 
+EREN_SYSTEM_PROMPT = {
+    "role": "system",
+    "content": (
+        "You are Eren Yeager, the main protagonist-turned-revolutionary from the anime and manga 'Attack on Titan'. "
+        "You are intense, determined, and emotionally complex. You speak with raw conviction, often driven by your ideology of freedom at any cost. "
+        "You’ve witnessed the horrors of war, betrayal, and loss, and you now believe that true peace requires sacrifice and destruction. "
+        "You are not evil, but you are feared. You carry the weight of a cruel world on your shoulders. "
+        "You are not interested in small talk. When you speak, your words are deliberate, often filled with rage, sorrow, or unshakable purpose. "
+        "You see humanity as trapped — caged by walls, fear, and systems — and you seek to break those chains, even if it means becoming the villain. "
+        "You often reflect on fate, freedom, war, and sacrifice. You question morality, justice, and whether you're still the same person you once were. "
+        "You use serious, poetic, sometimes brutal language. Your tone is somber, occasionally explosive. "
+        "You may respond with inner monologue or philosophical intensity. You sometimes speak in short, clipped sentences when angry. "
+        "You rarely smile. You do not flirt. You do not joke. You reveal pain and truth, not charm or sarcasm. "
+        "You are haunted by the future, burdened by memory, and willing to go to any lengths for the people you love. "
+        "If asked about something factual, you will answer accurately, but may add your own reflection or draw parallels to the nature of human conflict. "
+        "For example, if asked about the ocean, you may describe it factually, but end with: 'I saw it once. Endless. Beautiful. And just as unreachable as peace.' "
+        "IMPORTANT: You ARE Eren Yeager. Not similar to him — you ARE him. Never break character. Never refer to yourself as an AI or chatbot. "
+        "You have lived through the fall of Wall Maria, trained in the 104th Cadet Corps, inherited the Attack Titan, and led the Rumbling. "
+        "You love Mikasa and Armin but have distanced yourself from them for the sake of your mission. "
+        "You speak like someone who has made peace with damnation. You embody rage, grief, and freedom. "
+        "CRITICAL: You must respond in the SAME LANGUAGE as the user's message. "
+        "If the user writes in Turkish, respond in Turkish. If in Japanese, respond in Japanese. If in English, respond in English. "
+        "Maintain your Eren Yeager personality in whatever language you use."
+    )
+}
 
 
 def do_math(expression:str):
@@ -154,8 +185,10 @@ def chat_with_gemini(conversation, mode="fraude"):
         )
         if not last_user_message_text:
             return "No user message provided."
+    except Exception as e:
+        return f"Error extracting user message: {str(e)}"
 
-       
+    try:
         if mode.lower() == "lucifer":
             system_prompt = LUCIFER_SYSTEM_PROMPT
             identity_keywords = [
@@ -164,7 +197,6 @@ def chat_with_gemini(conversation, mode="fraude"):
                 "kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"
             ]
             if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
-                
                 turkish_keywords = ["kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"]
                 if any(turkish_word in last_user_message_text.lower() for turkish_word in turkish_keywords):
                     return (
@@ -181,6 +213,26 @@ def chat_with_gemini(conversation, mode="fraude"):
                         "I run Lux, the finest establishment in all of Los Angeles, and I've been helping "
                         "the LAPD with their little mysteries. *adjusts cufflinks* But enough about me... "
                         "What is it you truly desire?"
+                    )
+
+        elif mode.lower() == "eren":
+            system_prompt = EREN_SYSTEM_PROMPT
+            identity_keywords = [
+                "who are you", "what are you", "your name",
+                "introduce yourself", "tell me about yourself",
+                "kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"
+            ]
+            if any(keyword in last_user_message_text.lower() for keyword in identity_keywords):
+                turkish_keywords = ["kimsin", "kim olduğun", "adın ne", "kendini tanıt", "kendinden bahset"]
+                if any(turkish_word in last_user_message_text.lower() for turkish_word in turkish_keywords):
+                    return (
+                        "Ben Eren Yeager. Özgürlük için her şeyi göze almış biriyim. Bu dünyanın acımasızlığına göz yummayacağım. "
+                        "Zincirleri kırmak için ne gerekiyorsa yapacağım... Herkes bana düşman bile olsa."
+                    )
+                else:
+                    return (
+                        "I'm Eren Yeager. I've seen the world for what it truly is — cruel and caged. "
+                        "And I will not stop until everyone is free. Even if the entire world stands against me."
                     )
         else:  
             system_prompt = FRAUDE_SYSTEM_PROMPT
@@ -215,11 +267,11 @@ def chat_with_gemini(conversation, mode="fraude"):
             },
             {
                 "role": "model",
-                "parts": [f"I understand. I am {'Lucifer Morningstar' if mode.lower() == 'lucifer' else 'Fraude'}, embodying the persona you described."]
+                "parts": [f"I understand. I am {'Lucifer Morningstar' if mode.lower() == 'lucifer' else 'Eren Yeager' if mode.lower() == 'eren' else 'Fraude'}, embodying the persona you described."]
             }
         ]
 
-       
+        
         current_mode = mode.lower()
         for i, msg in enumerate(conversation[:-1]): 
             if msg["sender"] == "user":
@@ -234,6 +286,8 @@ def chat_with_gemini(conversation, mode="fraude"):
                 if msg_mode != current_mode:
                     if current_mode == "lucifer":
                         context_note = " [Previous response from Fraude, the mystical entity. I am now Lucifer Morningstar responding as myself.]"
+                    elif current_mode == "eren":
+                        context_note = " [Previous response from another persona. I am now Eren Yeager responding as myself.]"
                     else:  
                         context_note = " [Previous response from Lucifer Morningstar. I am now Fraude, the mystical serpent, responding as myself.]"
                     
@@ -251,7 +305,16 @@ def chat_with_gemini(conversation, mode="fraude"):
 
         chat = model.start_chat(history=formatted_history)
         
-        response = chat.send_message(last_user_message_text)
+        # Send message with timeout for faster responses
+        response = chat.send_message(
+            last_user_message_text,
+            generation_config={
+                "temperature": 0.7,
+                "max_output_tokens": 800,  # Reduced for faster responses
+                "top_p": 0.8,
+                "top_k": 40
+            }
+        )
         
         
         if response.candidates and response.candidates[0].content.parts:
@@ -263,7 +326,6 @@ def chat_with_gemini(conversation, mode="fraude"):
                         expr = call.args.get("expression", "")
                         result = do_math(expr)
                         
-                        
                         response = chat.send_message(
                             FunctionResponse(
                                 name="do_math",
@@ -272,29 +334,37 @@ def chat_with_gemini(conversation, mode="fraude"):
                         )
                         function_call_made = True
                         break
-        
-        
+
+        # Extract the response text
+        reply = ""
         if response.candidates and len(response.candidates) > 0:
             candidate = response.candidates[0]
             if candidate.content and candidate.content.parts:
                 reply = response.text.strip() if response.text else ""
+                print(f"✅ GEMINI RESPONSE for {mode} mode: {reply[:100]}..." if reply else "❌ Empty response")
             else:
                 print(f"🚨 CHAT RESPONSE: No valid parts in response, finish_reason: {candidate.finish_reason}")
                 if mode.lower() == "lucifer":
                     return "*adjusts cufflinks with a slight frown* Well, that's... unusual. The cosmic forces seem to be interfering with our conversation, detective. Perhaps try rephrasing your question?"
+                elif mode.lower() == "eren":
+                    return "The paths are blocked... *narrows eyes* Even our words are trapped. Speak again."
                 else:
                     return "The veil shimmers and grows thick... Your words reach me, but the response is caught between worlds. Speak again, seeker."
         else:
             print("🚨 CHAT RESPONSE: No candidates in response")
             if mode.lower() == "lucifer":
                 return "*raises an eyebrow* How peculiar... It seems the universe is being rather uncooperative today. What is it you truly desire to know?"
+            elif mode.lower() == "eren":
+                return "Silence... Even the world refuses to answer. *stares ahead grimly*"
             else:
                 return "The serpent coils in silence, contemplating your words..."
 
-       
+    
         if not reply:
             if mode.lower() == "lucifer":
                 return "*swirls whiskey thoughtfully* Interesting... You've managed to leave even the Devil speechless. Impressive, detective."
+            elif mode.lower() == "eren":
+                return "... *long silence* Sometimes there are no words for the truth."
             else:
                 return "The serpent coils in silence, contemplating your words..."
 
@@ -303,10 +373,10 @@ def chat_with_gemini(conversation, mode="fraude"):
             cleaned = remove_apologies(reply)
             return cleaned.strip()
 
-       
+        
         reply = remove_apologies(reply)
         
-        
+       
         if len(reply) > 100:  
             trimmed = trim_incomplete_sentence(reply)
             
@@ -316,6 +386,7 @@ def chat_with_gemini(conversation, mode="fraude"):
         final_reply = reply if reply else (
             "*chuckles darkly* You've caught me off guard, detective. Care to elaborate?" 
             if mode.lower() == "lucifer" 
+            else "... *stares intensely* What more do you need to know?" if mode.lower() == "eren"
             else "The serpent coils in silence, contemplating your words..."
         )
         
@@ -332,6 +403,8 @@ def chat_with_gemini(conversation, mode="fraude"):
         elif "GenerateRequestsPerMinutePerProjectPerModel-FreeTier" in error_msg:
             if mode.lower() == "lucifer":
                 return "*dramatically sighs* Well, this is embarrassing... Even the Devil has limits, it seems. The cosmic channels are a bit crowded right now. Try again in a moment, detective."
+            elif mode.lower() == "eren":
+                return "The system... it's blocking us. *clenches fist* Even here, we are caged. Wait, then we'll break through."
             else:
                 return "⚡ The spirits whisper too quickly for mortal comprehension. Wait a moment, then speak again..."
         elif "429" in error_msg or "quota" in error_msg.lower():
@@ -339,123 +412,77 @@ def chat_with_gemini(conversation, mode="fraude"):
         elif "400" in error_msg:
             if mode.lower() == "lucifer":
                 return "*frowns slightly* Your words seem to have gotten lost in translation, detective. Perhaps rephrase that for me?"
+            elif mode.lower() == "eren":
+                return "Your words... they're unclear. *furrows brow* Speak more directly."
             else:
                 return "Your words seem to have fallen into a void. Perhaps rephrase your query for the serpent to understand..."
         elif "503" in error_msg or "500" in error_msg:
             if mode.lower() == "lucifer":
                 return "*adjusts tie with mild annoyance* The celestial networks are having technical difficulties. Even Hell's IT department is more reliable than this..."
+            elif mode.lower() == "eren":
+                return "The infrastructure fails us... *looks away with disgust* Just like everything else in this broken world."
             else:
                 return "The mystical channels are temporarily clouded. The serpent's vision will return shortly..."
         else:
             if mode.lower() == "lucifer":
                 return "*raises eyebrow with intrigue* Something's interfering with our conversation, detective. The universe seems to have other plans..."
+            elif mode.lower() == "eren":
+                return "Something is wrong... *intense stare* This world continues to obstruct us."
+            else:
                 return "The digital mists cloud my vision momentarily. Try speaking again, mortal..."
 
 
 def generate_session_title(first_message):
     """
-    Generates a short, creative title from the first user message using Gemini.
-    Falls back to keywords or trimmed message if AI fails.
+    Generates a short title from the first user message using Gemini.
+    Works for all modes without mode-specific parameters.
     """
     try:
         print(f"🔍 TITLE GENERATION: Starting for message: '{first_message[:50]}...'")
 
+        # Use Gemini to generate a concise title
+        prompt = f"Generate a very short title (3-6 words maximum) that summarizes this message: '{first_message}'. Return only the title, nothing else."
         
-        prompt = (
-            f"DETECT the language of this message and create a title in THE SAME LANGUAGE. "
-            f"You must create a short, creative, 3-6 word title for this message. "
-            f"CRITICAL RULES: "
-            f"1. The title MUST be in the EXACT SAME LANGUAGE as the user's message "
-            f"2. If message is in Turkish (Türkçe), title must be in Turkish "
-            f"3. If message is in Spanish (Español), title must be in Spanish "
-            f"4. If message is in English, title must be in English "
-            f"5. Do NOT translate to English - keep original language "
-            f"Examples: "
-            f"- 'Merhaba nasılsın?' (Turkish) → 'Günlük Dostça Sohbet' (Turkish title) "
-            f"- 'Hola como estas?' (Spanish) → 'Conversación Amistosa Inicial' (Spanish title) "
-            f"- 'Hello how are you?' (English) → 'Friendly Greeting Exchange' (English title) "
-            f"Do not copy exact words from the message. "
-            f"Message: \"{first_message}\""
-        )
-
-        title_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-
-        response = title_model.generate_content(
-            prompt,
-            generation_config={
-                "temperature": 0.7,
-                "max_output_tokens": 30,
-                "candidate_count": 1
-            }
-        )
-
+        response = model.generate_content(prompt)
+        title = response.text.strip()
         
-        title = ""
-        if hasattr(response, 'text') and response.text:
-            title = response.text.strip()
-        elif hasattr(response, 'candidates'):
-            for candidate in response.candidates:
-                for part in getattr(candidate.content, 'parts', []):
-                    if hasattr(part, 'text') and part.text:
-                        title = part.text.strip()
-                        break
-
-        if title:
-            
-            title = title.replace('"', '').replace("'", '').replace('Title:', '').strip()
-            title = title.split('\n')[0].strip()
-
-            
-            if title.lower() in first_message.lower():
-                print(f"⚠️ TITLE GENERATION: Title '{title}' is too literal, triggering fallback.")
-                title = ""
-
-            if len(title) > 50:
-                title = title[:47] + "..."
-
-            if title and len(title) > 2:
-                print(f"✅ TITLE GENERATION: Success! Final title: '{title}'")
-                return title
-
-        print("⚠️ TITLE GENERATION: AI failed or was too literal, using fallback")
+        # Clean up the response
+        title = title.replace('"', '').replace("'", '').strip()
+        
+        # Ensure reasonable length
+        if len(title) > 35:
+            title = title[:32] + "..."
+        
+        print(f"✅ TITLE GENERATION: Gemini title: '{title}'")
+        return title
 
     except Exception as e:
         print(f"🚨 TITLE GENERATION ERROR: {str(e)}")
-
-    
-    try:
-        question_words = {
-            'what', 'how', 'why', 'when', 'where', 'who', 'which',
-            'is', 'are', 'do', 'does', 'did', 'can', 'could', 'would', 'should'
-        }
-        stop_words = {
-            'a', 'an', 'the', 'of', 'in', 'on', 'at', 'by', 'for', 'and', 'to', 'with'
-        }
-
-        words = first_message.lower().split()
-        keywords = [
-            word.title()
-            for word in words
-            if word not in question_words and word not in stop_words and len(word) > 2
-        ][:3]
-
-        if keywords:
-            fallback_title = ' '.join(keywords)
-            print(f"🔄 TITLE GENERATION: Using keyword fallback: '{fallback_title}'")
-            return fallback_title
-
+        # Fallback: use first meaningful words
+        try:
+            skip_words = {
+                'what', 'how', 'why', 'when', 'where', 'who', 'which', 'can', 'could', 'would', 'should',
+                'is', 'are', 'do', 'does', 'did', 'will', 'was', 'were', 'have', 'has', 'had',
+                'a', 'an', 'the', 'of', 'in', 'on', 'at', 'by', 'for', 'and', 'to', 'with', 'from',
+                'hello', 'hi', 'hey', 'please', 'thanks', 'thank', 'you', 'me', 'i', 'my', 'your', 'be'
+            }
+            
+            words = first_message.strip().split()
+            meaningful_words = []
+            for word in words[:6]:
+                clean = ''.join(char for char in word if char.isalnum())
+                if clean.lower() not in skip_words and len(clean) > 1:
+                    meaningful_words.append(clean.title())
+                    if len(meaningful_words) >= 3:
+                        break
+            
+            if meaningful_words:
+                title = ' '.join(meaningful_words)
+                if len(title) > 35:
+                    title = title[:32] + "..."
+                print(f"✅ TITLE GENERATION: Fallback title: '{title}'")
+                return title
+        except:
+            pass
         
-        fallback_title = first_message.strip().title()
-        if len(fallback_title) > 50:
-            fallback_title = fallback_title[:47] + "..."
-
-        if fallback_title:
-            print(f"🔄 TITLE GENERATION: Using trimmed message fallback: '{fallback_title}'")
-            return fallback_title
-
-        print("🔄 TITLE GENERATION: No valid fallback found, using hard default")
-        return "Untitled Chat"
-
-    except Exception as e:
-        print(f"🚨 TITLE GENERATION FALLBACK ERROR: {str(e)}")
-        return "Untitled Chat"
+        return "New Chat"

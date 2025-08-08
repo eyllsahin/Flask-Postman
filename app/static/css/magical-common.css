@@ -1,7 +1,7 @@
-/* Magical Common Elements */
+
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Poppins:wght@300;400;500&display=swap');
 
-/* Enhanced Fairy Animation */
+
 .fairy {
     position: fixed;
     width: 8px !important;
@@ -65,7 +65,7 @@
     }
 }
 
-/* Add more fairies with different paths */
+
 .fairy:nth-child(odd) {
     animation: fairyFloatAlt 15s infinite ease-in-out;
 }
@@ -89,7 +89,7 @@
     }
 }
 
-/* Magical sparkle effect for inputs and buttons */
+
 .magical-input:focus, .magical-btn:hover {
     animation: sparkle 1.5s infinite linear;
 }

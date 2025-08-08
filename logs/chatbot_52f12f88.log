@@ -1,0 +1,7 @@
+2025-08-07 12:05:32,099 INFO: Chatbot startup [in /app/app/__init__.py:36]
+2025-08-07 12:11:45,912 INFO: New session created successfully: session_id=1, title=New Chat, user_id=2 [in /app/app/routes.py:1007]
+2025-08-07 12:11:47,481 INFO: New session created successfully: session_id=2, title=New Chat 07/08/2025 15:11, user_id=2 [in /app/app/routes.py:1007]
+2025-08-07 12:12:04,639 INFO: New session created successfully: session_id=3, title=New Chat 07/08/2025 15:12, user_id=2 [in /app/app/routes.py:1007]
+2025-08-07 12:12:10,910 INFO: New session created successfully: session_id=4, title=New Chat 07/08/2025 15:12, user_id=2 [in /app/app/routes.py:1007]
+2025-08-07 12:12:27,848 INFO: New session created successfully: session_id=5, title=New Chat 07/08/2025 15:12, user_id=2 [in /app/app/routes.py:1007]
+2025-08-07 12:12:32,038 INFO: New session created successfully: session_id=6, title=New Chat 07/08/2025 15:12, user_id=2 [in /app/app/routes.py:1007]

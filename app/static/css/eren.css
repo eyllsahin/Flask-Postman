@@ -1,0 +1,587 @@
+
+
+:root.eren-mode {
+  --primary-color: #1a1a1a;
+  --accent-color: #5d2e2e;
+  --highlight: #a31d1d;
+  --text-light: #e8e8e8;
+  --titan-ember: rgba(255, 75, 75, 0.3);
+  --shadow-glow: 0 0 15px rgba(255, 0, 0, 0.3);
+  --rage-glow: 0 0 25px rgba(179, 0, 0, 0.5);
+  --wall-gray: #2a2a2a;
+  --blood-red: #851414;
+  --freedom-green: #2c5f5f;
+  --wall-stone: #8b7355;
+  --scout-brown: #4a3728;
+  --titan-shadow: rgba(139, 69, 19, 0.4);
+  --attack-orange: #ff6b35;
+}
+
+body.eren-mode {
+  background: url('/static/img/wall.jpg') center/cover no-repeat fixed !important;
+  color: var(--text-light) !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  overflow-x: hidden !important;
+}
+
+body.eren-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(133, 20, 20, 0.02) 0%, transparent 50%, rgba(44, 95, 95, 0.01) 100%);
+  opacity: 0.3;
+  z-index: 1 !important; /* Ensure it's visible */
+  animation: titanAura 20s ease-in-out infinite alternate;
+  pointer-events: none !important;
+}
+
+@keyframes titanAura {
+  0% { opacity: 0.4; transform: scale(1); filter: hue-rotate(0deg); }
+  100% { opacity: 0.7; transform: scale(1.02); filter: hue-rotate(10deg); }
+}
+
+body.eren-mode::after {
+  display: none;
+}
+
+@keyframes titanMarch {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(-20px) translateY(-10px); }
+  50% { transform: translateX(-40px) translateY(0); }
+  75% { transform: translateX(-20px) translateY(10px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+.eren-mode .container {
+  background: rgba(26, 26, 26, 0.3) !important;
+  border: 3px solid var(--scout-brown) !important;
+  box-shadow: 
+    0 0 30px rgba(133, 20, 20, 0.4),
+    inset 0 0 30px rgba(139, 69, 19, 0.2) !important;
+  backdrop-filter: blur(4px) !important;
+  border-radius: 15px !important;
+  overflow: hidden !important;
+  max-width: 1400px !important;
+  width: 95% !important;
+  height: 100vh !important; /* FIXED */
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.eren-mode .sidebar {
+  background: 
+    linear-gradient(180deg, 
+      rgba(26, 26, 26, 0.95), 
+      rgba(74, 55, 40, 0.85),
+      rgba(60, 0, 0, 0.75)) !important;
+  border-right: 4px solid var(--scout-brown) !important;
+  box-shadow: 
+    inset -8px 0 20px rgba(139, 69, 19, 0.5),
+    8px 0 25px rgba(0, 0, 0, 0.6) !important;
+  position: relative !important;
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  height: 100% !important; /* FIXED */
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 1.5rem !important;
+  z-index: 20 !important;
+}
+
+.eren-mode .sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      rgba(139, 115, 85, 0.1) 1px,
+      rgba(139, 115, 85, 0.1) 20px,
+      transparent 21px
+    );
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Hide the fraude logo in Eren mode */
+.eren-mode .fraude-logo {
+  display: none !important;
+}
+
+.eren-mode .sidebar h2 {
+  color: var(--freedom-green) !important;
+  font-family: 'Staatliches', sans-serif !important;
+  font-weight: bold !important;
+  font-size: 1.4rem !important;
+  text-shadow: 
+    3px 3px 6px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(44, 95, 95, 0.6),
+    0 0 30px rgba(255, 107, 53, 0.3) !important;
+  text-align: center !important;
+  padding: 120px 10px 20px 10px !important;
+  border-bottom: 3px solid var(--scout-brown) !important;
+  margin-bottom: 15px !important;
+  position: relative !important;
+  background: 
+    url('/static/img/erenlogo.svg') no-repeat center top,
+    linear-gradient(135deg, rgba(74, 55, 40, 0.3), rgba(44, 95, 95, 0.2)) !important;
+  background-size: 100px auto, cover !important;
+  animation: logoGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  0% { 
+    text-shadow: 
+      3px 3px 6px rgba(0, 0, 0, 0.9),
+      0 0 15px rgba(44, 95, 95, 0.6),
+      0 0 30px rgba(255, 107, 53, 0.3);
+  }
+  100% { 
+    text-shadow: 
+      3px 3px 6px rgba(0, 0, 0, 0.9),
+      0 0 25px rgba(44, 95, 95, 0.9),
+      0 0 50px rgba(255, 107, 53, 0.6);
+  }
+}
+
+.eren-mode .sidebar h2::before {
+  content: "⚔️ ";
+  font-size: 1.2rem;
+  animation: weaponPulse 4s infinite alternate;
+}
+
+.eren-mode .sidebar h2::after {
+  content: " ⚔️";
+  font-size: 1.2rem;
+  animation: weaponPulse 4s infinite alternate 2s;
+}
+
+@keyframes weaponPulse {
+  0% { 
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); 
+    transform: scale(1);
+  }
+  100% { 
+    text-shadow: 0 0 20px rgba(255, 107, 53, 0.9); 
+    transform: scale(1.1);
+  }
+}
+
+
+.eren-mode #newSessionBtn {
+  background: linear-gradient(45deg, var(--scout-brown), var(--blood-red), var(--attack-orange));
+  border: 3px solid var(--freedom-green);
+  color: var(--text-light);
+  font-weight: bold;
+  font-family: 'Staatliches', sans-serif;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: var(--rage-glow);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.eren-mode #newSessionBtn::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: 
+    conic-gradient(from 0deg, transparent, rgba(255, 107, 53, 0.4), transparent);
+  transition: all 0.6s;
+  opacity: 0;
+}
+
+.eren-mode #newSessionBtn:hover {
+  background: linear-gradient(45deg, var(--attack-orange), var(--blood-red), var(--scout-brown));
+  transform: scale(1.05) translateY(-3px);
+  box-shadow: 
+    0 8px 25px rgba(255, 107, 53, 0.5),
+    var(--rage-glow);
+  border-color: var(--attack-orange);
+}
+
+.eren-mode #newSessionBtn:hover::before {
+  opacity: 1;
+  animation: titanPower 1s ease-out;
+}
+
+@keyframes titanPower {
+  0% { transform: rotate(0deg) scale(0); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.eren-mode .chat-area {
+  background: transparent !important;
+  border-left: 4px solid var(--scout-brown) !important;
+  position: relative !important;
+  border-radius: 0 15px 15px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding: 1.5rem !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  z-index: 20 !important;
+}
+
+.eren-mode .chat-header {
+  border-bottom: 4px solid var(--scout-brown);
+  background: linear-gradient(90deg, 
+    rgba(74, 55, 40, 0.8), 
+    rgba(26, 26, 26, 0.6),
+    rgba(133, 20, 20, 0.4));
+  position: relative;
+  padding: 20px;
+  box-shadow: 
+    0 4px 15px rgba(133, 20, 20, 0.5),
+    inset 0 -3px 8px rgba(74, 55, 40, 0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eren-mode .chat-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--scout-brown), 
+    var(--attack-orange), 
+    var(--blood-red), 
+    var(--freedom-green), 
+    var(--scout-brown));
+  animation: borderPulse 6s ease-in-out infinite;
+}
+
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; box-shadow: 0 0 15px rgba(255, 107, 53, 0.7); }
+}
+
+
+.eren-mode #chatTitle {
+  color: var(--freedom-green);
+  font-size: 2rem;
+  font-family: 'Staatliches', sans-serif;
+  font-weight: bold;
+  text-shadow: 
+    0 0 15px var(--blood-red),
+    3px 3px 6px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(255, 107, 53, 0.4);
+  text-align: center;
+  letter-spacing: 3px;
+  position: relative;
+  animation: titlePower 10s ease-in-out infinite alternate;
+}
+
+@keyframes titlePower {
+  0% { 
+    transform: scale(1);
+    text-shadow: 
+      0 0 15px var(--blood-red),
+      3px 3px 6px rgba(0, 0, 0, 0.9),
+      0 0 30px rgba(255, 107, 53, 0.4);
+  }
+  100% { 
+    transform: scale(1.02);
+    text-shadow: 
+      0 0 25px var(--blood-red),
+      3px 3px 6px rgba(0, 0, 0, 0.9),
+      0 0 50px rgba(255, 107, 53, 0.7),
+      0 0 80px rgba(44, 95, 95, 0.3);
+  }
+}
+
+
+
+@keyframes titanGaze {
+  0%, 100% { 
+    opacity: 0.7; 
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    transform: translateY(-50%) scale(1);
+  }
+  50% { 
+    opacity: 1; 
+    text-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 50px rgba(255, 107, 53, 0.8);
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+/* Enhanced messages */
+.eren-mode .message.user {
+  background: linear-gradient(135deg, 
+    rgba(74, 55, 40, 0.95), 
+    rgba(26, 26, 26, 0.9)) !important;
+  border-left: 6px solid var(--attack-orange) !important;
+  border-radius: 15px 25px 25px 8px !important;
+  color: #d84545 !important;
+  font-weight: 500 !important;
+  box-shadow: 
+    0 6px 20px rgba(255, 107, 53, 0.4),
+    inset 0 2px 5px rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px) !important;
+  position: relative !important;
+  margin: 15px 0 !important;
+  padding: 18px 25px !important;
+  animation: messageSlide 0.5s ease-out !important;
+}
+
+@keyframes messageSlide {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.eren-mode .message.user::before {
+  content: '🗡️';
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  animation: swordStrike 3s infinite alternate ease-in-out;
+}
+
+@keyframes swordStrike {
+  0% { 
+    transform: translateY(-50%) rotate(-10deg) scale(1); 
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+  }
+  100% { 
+    transform: translateY(-50%) rotate(10deg) scale(1.1); 
+    text-shadow: 0 0 20px rgba(255, 107, 53, 0.9);
+  }
+}
+
+
+
+.eren-mode .message.bot {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95), 
+    rgba(245, 245, 245, 0.95),
+    rgba(235, 235, 235, 0.95)) !important;
+  border-left: 6px solid var(--freedom-green) !important;
+  border-radius: 25px 15px 8px 25px !important;
+  color: #000000 !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  position: relative !important;
+  margin: 15px 0 !important;
+  padding: 18px 25px !important;
+  box-shadow: 
+    0 6px 20px rgba(44, 95, 95, 0.4),
+    inset 0 2px 5px rgba(255, 255, 255, 0.08) !important;
+  animation: messageSlide 0.5s ease-out 0.2s both !important;
+}
+
+.eren-mode .message.bot::before {
+  content: "🛡️";
+  position: absolute;
+  left: -45px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  animation: shieldDefend 4s infinite ease-in-out;
+}
+
+@keyframes shieldDefend {
+  0%, 100% { 
+    transform: translateY(-50%) scale(1) rotate(0deg); 
+    text-shadow: 0 0 15px rgba(44, 95, 95, 0.6); 
+  }
+  50% { 
+    transform: translateY(-50%) scale(1.15) rotate(-5deg); 
+    text-shadow: 0 0 25px rgba(44, 95, 95, 0.9); 
+  }
+}
+
+/* Empty chat message centered inside container */
+.eren-mode #chatMessages:empty::before {
+  content: "⚔️ TATAKAE! ⚔️\A\A\"I will keep moving forward, until my enemies are destroyed.\"\A\A\"That day, mankind received a grim reminder...\"\A\ASpeak your truth. The walls cannot contain freedom." !important;
+  white-space: pre-line !important;
+  color: var(--freedom-green) !important;
+  font-family: 'Staatliches', sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  padding: 40px !important;
+  text-shadow: 
+    0 0 20px rgba(44, 95, 95, 0.8),
+    3px 3px 6px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(255, 107, 53, 0.4) !important;
+  animation: freedomCall 8s infinite alternate !important;
+  pointer-events: none !important;
+  line-height: 1.8 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 90% !important;
+  max-width: 600px !important;
+  border-radius: 15px !important;
+  backdrop-filter: blur(3px) !important;
+  background: rgba(26, 26, 26, 0.3) !important;
+}
+
+/* Chat messages container */
+.eren-mode #chatMessages {
+  flex-grow: 1 !important;
+  min-height: 300px !important;
+  max-height: 65vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 1rem !important;
+  border-radius: 15px !important;
+  background: transparent !important;
+  margin-bottom: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  position: relative !important;
+  word-wrap: break-word !important;
+  backdrop-filter: none !important;
+  border: none !important;
+}
+
+@keyframes freedomCall {
+  0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); filter: brightness(1.2); text-shadow: 0 0 30px rgba(44, 95, 95, 1), 0 0 60px rgba(255, 107, 53, 0.7), 3px 3px 6px rgba(0, 0, 0, 0.9); }
+}
+
+/* Input area */
+.eren-mode .chat-input {
+  background: rgba(26, 26, 26, 0.9);
+  border: 4px solid var(--scout-brown);
+  border-radius: 40px;
+  box-shadow: 
+    0 8px 30px rgba(74, 55, 40, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  padding: 8px;
+}
+
+.eren-mode .chat-input input {
+  background: rgba(0, 0, 0, 0.6);
+  border: 3px solid var(--highlight);
+  color: var(--text-light);
+  border-radius: 30px;
+  font-family: 'Staatliches', sans-serif;
+  font-size: 1.2rem;
+  padding: 15px 25px;
+  transition: all 0.4s ease;
+}
+
+.eren-mode .chat-input input:focus {
+  border-color: var(--freedom-green);
+  box-shadow: 
+    0 0 30px rgba(44, 95, 95, 0.7),
+    inset 0 0 15px rgba(44, 95, 95, 0.2);
+  outline: none;
+  transform: scale(1.02);
+}
+
+.eren-mode .chat-input input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  font-family: 'Staatliches', sans-serif;
+}
+
+/* Scrollbar */
+.eren-mode #chatMessages::-webkit-scrollbar {
+  width: 16px;
+}
+
+.eren-mode #chatMessages::-webkit-scrollbar-track {
+  background: rgba(74, 55, 40, 0.3);
+  border-radius: 8px;
+  border: 2px solid rgba(26, 26, 26, 0.5);
+}
+
+.eren-mode #chatMessages::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    var(--attack-orange), 
+    var(--blood-red), 
+    var(--freedom-green));
+  border-radius: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.eren-mode #chatMessages::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    var(--freedom-green), 
+    var(--attack-orange), 
+    var(--blood-red));
+  box-shadow: 
+    inset 0 0 8px rgba(255, 255, 255, 0.3),
+    0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+/* Mode selector */
+.eren-mode .mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eren-mode .mode-selector label {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Staatliches', sans-serif;
+}
+
+.eren-mode .mode-select {
+  background: linear-gradient(135deg, var(--scout-brown), var(--blood-red));
+  border: 3px solid var(--freedom-green);
+  color: var(--text-light);
+  font-family: 'Staatliches', sans-serif;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  padding: 10px 15px;
+  box-shadow: var(--rage-glow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.eren-mode .mode-select:hover {
+  background: linear-gradient(135deg, var(--attack-orange), var(--scout-brown));
+  border-color: var(--attack-orange);
+  transform: scale(1.05);
+}
+
+.eren-mode .mode-select option {
+  background: var(--primary-color);
+  color: var(--text-light);
+  font-family: 'Staatliches', sans-serif;
+  padding: 8px;
+}
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Staatliches:wght@400&display=swap');

@@ -24,7 +24,15 @@ COPY . .
 
 RUN mkdir -p logs
 
+ENV FLASK_DEBUG=False
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+
 EXPOSE 5000
+
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
 
 CMD ["python", "run.py"]
 

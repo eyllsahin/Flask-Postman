@@ -5,39 +5,59 @@ services:
     container_name: chatbot_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MYSQL_DATABASE: ${DB_NAME:-chatbot_db}
     ports:
       - "3307:3306"  
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - chatbot_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 30s
 
-  
+
   chatbot_web:
     build: .
     container_name: chatbot_flask_web
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "0.0.0.0:8080:5000"  
     environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - DB_HOST=chatbot_mysql  
-      - DB_USER=root  
-      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}  
-      - DB_NAME=${DB_NAME}
+      - SECRET_KEY=${SECRET_KEY:-default-secret-key-change-this}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-key}
+      - DB_HOST=chatbot_mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - DB_NAME=${DB_NAME:-chatbot_db}
+      - FLASK_DEBUG=${FLASK_DEBUG:-False}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
     depends_on:
-      - chatbot_mysql
+      chatbot_mysql:
+        condition: service_healthy
     volumes:
       - ./logs:/app/logs
+      - .:/app  
     networks:
       - chatbot_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   mysql_data:
+    driver: local
 
 networks:
   chatbot_network:
     driver: bridge
+

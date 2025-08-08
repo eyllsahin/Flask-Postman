@@ -27,8 +27,7 @@
             padding: 0;
             font-family: 'Poppins', sans-serif;
         }
-        
-        /* Magical Forest Background */
+      
         body::before {
             content: '';
             position: fixed;
@@ -46,7 +45,7 @@
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Default fairy lights -->
+   
     <div class="fairy" style="top: 10%; left: 5%;"></div>
     <div class="fairy" style="top: 30%; left: 15%;"></div>
     <div class="fairy" style="top: 60%; left: 8%;"></div>
@@ -54,7 +53,7 @@
     <div class="fairy" style="top: 80%; left: 85%;"></div>
     <div class="fairy" style="top: 50%; left: 95%;"></div>
     
-    <!-- Snake decorations -->
+    
     <div class="snake-decoration">
         <div class="snake"></div>
         <div class="snake"></div>
@@ -64,9 +63,9 @@
     {% block content %}{% endblock %}
     
     <script>
-        // Initialize common functionality
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Add animated fairy lights
+            
             function createFairies(count) {
                 const container = document.body;
                 for (let i = 0; i < count; i++) {
@@ -80,7 +79,7 @@
                 }
             }
             
-            // Create additional fairies
+            
             createFairies(5);
         });
     </script>

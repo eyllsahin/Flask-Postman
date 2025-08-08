@@ -225,7 +225,7 @@ button[type="submit"]:disabled {
     cursor: not-allowed;
 }
 
-/* Custom Scrollbar */
+
 ::-webkit-scrollbar {
     width: 8px;
 }

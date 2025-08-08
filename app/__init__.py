@@ -5,12 +5,13 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 def create_app():
-    load_dotenv()
+ 
+    load_dotenv(override=False)
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret')
 
-    # ✅ Log klasörü oluştur
+
     if not os.path.exists('logs'):
         os.mkdir('logs')
 
@@ -33,15 +34,14 @@ def create_app():
 
     app.logger.setLevel(logging.INFO)
     app.logger.info('Chatbot startup')
-
-    # ✅ Blueprint yönlendirmesi
     from .routes import main
     app.register_blueprint(main)
 
-    # ✅ Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
-        app.logger.error(f"404 error: {error}")
+    
+        from flask import request
+        app.logger.error(f"404 error for URL '{request.url}' (path: '{request.path}', method: '{request.method}', user-agent: '{request.headers.get('User-Agent', 'Unknown')}'): {error}")
         return render_template('error.html', error_message="The page you're looking for doesn't exist in our magical realm."), 404
 
     @app.errorhandler(500)

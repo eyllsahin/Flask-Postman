@@ -50,6 +50,57 @@ body.lucifer-mode::before {
     animation: devilFloat 8s ease-in-out infinite;
 }
 
+/* Lucifer Logo Styling */
+body.lucifer-mode .lucifer-logo {
+    display: block !important;
+    width: 120px;
+    height: auto;
+    margin: 0 auto 20px auto;
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9)) 
+            drop-shadow(0 0 40px rgba(139, 0, 0, 0.7))
+            drop-shadow(0 0 60px rgba(255, 69, 0, 0.5));
+    animation: luciferLogoGlow 4s ease-in-out infinite alternate;
+    transition: all 0.3s ease;
+}
+
+@keyframes luciferLogoGlow {
+    0% { 
+        filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9)) 
+                drop-shadow(0 0 40px rgba(139, 0, 0, 0.7))
+                drop-shadow(0 0 60px rgba(255, 69, 0, 0.5))
+                brightness(1) contrast(1);
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(255, 0, 0, 1)) 
+                drop-shadow(0 0 60px rgba(139, 0, 0, 0.9))
+                drop-shadow(0 0 90px rgba(255, 69, 0, 0.8))
+                brightness(1.2) contrast(1.1);
+        transform: scale(1.05) rotate(1deg);
+    }
+    100% { 
+        filter: drop-shadow(0 0 25px rgba(255, 0, 0, 1)) 
+                drop-shadow(0 0 50px rgba(139, 0, 0, 0.9))
+                drop-shadow(0 0 75px rgba(255, 69, 0, 0.7))
+                drop-shadow(0 0 100px rgba(255, 215, 0, 0.3))
+                brightness(1.3) contrast(1.2);
+        transform: scale(1.08) rotate(-1deg);
+    }
+}
+
+body.lucifer-mode .lucifer-logo:hover {
+    filter: drop-shadow(0 0 35px rgba(255, 0, 0, 1)) 
+            drop-shadow(0 0 70px rgba(139, 0, 0, 1))
+            drop-shadow(0 0 105px rgba(255, 69, 0, 0.9))
+            brightness(1.4);
+    transform: scale(1.1);
+}
+
+/* Hide Fraude logo in Lucifer mode */
+body.lucifer-mode .fraude-logo {
+    display: none !important;
+}
+
 @keyframes devilFloat {
     0%, 100% { 
         transform: translateY(0px) rotate(0deg); 
@@ -94,7 +145,6 @@ body.lucifer-mode::before {
 .thorn:nth-child(5) { top: 40%; left: 2%; transform: rotate(-10deg); }
 .thorn:nth-child(6) { top: 70%; left: 98%; transform: rotate(10deg); }
 
-/* Fire effects */
 .lucifer-mode .fire-effects {
     position: fixed;
     width: 100%;
@@ -136,14 +186,14 @@ body.lucifer-mode::before {
     }
 }
 
-/* Container styling */
+
 .lucifer-mode .container {
     background: rgba(26, 0, 0, 0.1);
     border: 1px solid var(--devil-red);
     box-shadow: var(--magical-shadow);
 }
 
-/* Sidebar styling */
+
 .lucifer-mode .sidebar {
     background: linear-gradient(180deg, rgba(26, 0, 0, 0.9), rgba(51, 0, 0, 0.8));
     border-right: 2px solid var(--devil-red);
@@ -186,7 +236,7 @@ body.lucifer-mode::before {
         inset 0 1px 3px rgba(255, 215, 0, 0.3);
 }
 
-/* Chat area */
+
 .lucifer-mode .chat-area {
     background: rgba(26, 0, 0, 0.3);
     border-left: 2px solid var(--devil-red);
@@ -283,7 +333,7 @@ body.lucifer-mode::before {
     10% { transform: translateY(-50%) rotate(5deg); }
 }
 
-/* Input area */
+
 .lucifer-mode .chat-input {
     background: rgba(26, 0, 0, 0.6);
     border: 2px solid var(--devil-red);
@@ -309,7 +359,7 @@ body.lucifer-mode::before {
     outline: none;
 }
 
-/* Mode selector */
+
 .lucifer-mode .mode-select {
     background: rgba(26, 0, 0, 0.8);
     border: 2px solid var(--devil-red);
@@ -321,7 +371,7 @@ body.lucifer-mode::before {
     border-color: var(--devil-gold);
 }
 
-/* Session list */
+
 .lucifer-mode .session-item {
     background: rgba(26, 0, 0, 0.4);
     border: 1px solid var(--devil-red);
@@ -339,7 +389,7 @@ body.lucifer-mode::before {
     border-color: var(--devil-gold);
 }
 
-/* Loading message */
+
 .lucifer-mode .loading-message {
     color: var(--devil-gold);
     font-style: italic;
@@ -351,7 +401,7 @@ body.lucifer-mode::before {
     50% { opacity: 1; transform: scale(1.02); }
 }
 
-/* Scrollbar */
+
 .lucifer-mode #chatMessages::-webkit-scrollbar {
     width: 8px;
 }
@@ -371,7 +421,7 @@ body.lucifer-mode::before {
     background: linear-gradient(180deg, var(--hell-fire), var(--devil-red));
 }
 
-/* Logo replacement for Lucifer mode */
+
 .lucifer-mode .fraude-logo {
     filter: 
         hue-rotate(0deg) 
@@ -381,7 +431,7 @@ body.lucifer-mode::before {
     animation: devilGlow 3s ease-in-out infinite alternate;
 }
 
-/* Special effects */
+
 .lucifer-mode::after {
     content: '';
     position: fixed;

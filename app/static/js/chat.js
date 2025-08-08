@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Ultra-enhanced security checks
+    
     const token = localStorage.getItem("token");
     const cookieToken = getCookie('token');
     
@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Function to get cookie value
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -18,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
     }
 
-    // Function to clear all authentication
     function clearAllAuth() {
         localStorage.removeItem('token');
         sessionStorage.clear();
@@ -27,68 +25,65 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Function to force redirect (prevents back navigation)
     function forceRedirectToLogin() {
-        // Clear browser history and redirect
+       
         history.replaceState(null, null, '/login');
         window.location.replace("/login");
     }
     
-    // Helper function to get current valid token
+    
     function getCurrentToken() {
         return localStorage.getItem("token") || cookieToken;
     }
     
-    // Immediately check if we're on an unauthorized page
+    
     if (window.location.pathname === '/chat' && (!token && !cookieToken)) {
         clearAllAuth();
         forceRedirectToLogin();
         return;
     }
     
-    // Note: Token validation will be done when sessions are loaded, no need for separate validation here
+    
     
     console.log("Token found in localStorage, continuing with chat page");
 
-    // Ultra-strong security: Prevent back navigation after logout
+  
     history.pushState(null, null, window.location.href);
     window.onpopstate = function (event) {
         console.log("Back button pressed, checking auth");
         const currentToken = localStorage.getItem("token");
         if (!currentToken) {
-            // If no token, force redirect to login
+            
             window.location.replace("/login");
         } else {
-            // If token exists, push state again to prevent back navigation
+            
             history.pushState(null, null, window.location.href);
         }
     };
 
-    // Additional popstate listener for extra security
+   
     window.addEventListener("popstate", () => {
         console.log("Popstate event triggered, checking auth");
         const token = localStorage.getItem("token");
         if (!token) {
             window.location.replace("/login");
         } else {
-            // Push state again to prevent going back
+           
             history.pushState(null, null, window.location.href);
         }
     });
 
-    // Security: Prevent back navigation after logout
+    
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
-            // Page was restored from cache (user pressed back button)
             const currentToken = localStorage.getItem("token");
             if (!currentToken) {
-                // No token means user logged out, prevent access
                 window.location.replace("/login");
             }
         }
     });
 
-    // Security: Check token validity periodically (token lasts 1 hour, check every 55 minutes)
+  
     setInterval(() => {
         const currentToken = localStorage.getItem("token");
         if (!currentToken) {
@@ -96,9 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
             clearAllAuth();
             window.location.replace("/login");
         }
-    }, 3300000); // Check every 55 minutes (3300000ms) - 5 min buffer before 1-hour expiry
+    }, 3300000); 
 
-    // Get DOM elements
+  
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
     const chatMessages = document.getElementById("chatMessages");
@@ -108,10 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logoutBtn");
     const modeSelect = document.getElementById("modeSelect");
 
-    // Initialize session state
+   
     let currentSessionId = null;
 
-    // Function to apply theme without saving
+   
     function applyTheme(selectedMode, saveToStorage = true) {
         const chatTitle = document.getElementById("chatTitle");
         const sidebarTitle = document.querySelector('.sidebar h2');
@@ -119,8 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const html = document.documentElement;
         const fairies = document.querySelectorAll('.fairy');
         
+        body.classList.remove('lucifer-mode', 'eren-mode');
+        html.classList.remove('lucifer-mode', 'eren-mode');
+        
         if (selectedMode === "lucifer") {
-            // Switch to Lucifer theme
+            
             body.classList.add('lucifer-mode');
             html.classList.add('lucifer-mode');
             chatTitle.textContent = "😈 Lucifer's Hell 😈";
@@ -129,67 +127,93 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             messageInput.placeholder = "What is it you truly desire?";
             
-            // Hide fairies
+           
             fairies.forEach(fairy => {
                 fairy.style.display = 'none';
             });
-            
-            // Show fire effects
+           
             const fireEffects = document.querySelector('.fire-effects');
             if (fireEffects) {
                 fireEffects.style.display = 'block';
             }
             
-            // Show thorn decorations
+            
             const thornDecoration = document.querySelector('.thorn-decoration');
             if (thornDecoration) {
                 thornDecoration.style.display = 'block';
             }
             
+        } else if (selectedMode === "eren") {
+            console.log("Applying Eren mode...");
+            body.classList.add('eren-mode');
+            html.classList.add('eren-mode');
+            console.log("Eren mode classes added. Body classes:", body.className);
+            console.log("HTML classes:", html.className);
+            chatTitle.textContent = " Path to Freedom ";
+            if (sidebarTitle) {
+                sidebarTitle.textContent = " Path to Freedom ";
+            }
+            messageInput.placeholder = "What do you seek beyond these walls?";
+            
+            
+            fairies.forEach(fairy => {
+                fairy.style.display = 'none';
+            });
+            
+            
+            const fireEffects = document.querySelector('.fire-effects');
+            if (fireEffects) {
+                fireEffects.style.display = 'none';
+            }
+            
+            
+            const thornDecoration = document.querySelector('.thorn-decoration');
+            if (thornDecoration) {
+                thornDecoration.style.display = 'none';
+            }
+            
         } else {
-            // Switch back to Fraude theme
-            body.classList.remove('lucifer-mode');
-            html.classList.remove('lucifer-mode');
+            
             chatTitle.textContent = "✧ Fraude's Realm ✧";
             if (sidebarTitle) {
                 sidebarTitle.textContent = "✧ Fraude Realms ✧";
             }
             messageInput.placeholder = "Cast your message into the magical realm...";
             
-            // Show fairies
+            
             fairies.forEach(fairy => {
                 fairy.style.display = 'block';
             });
             
-            // Hide fire effects
+            
             const fireEffects = document.querySelector('.fire-effects');
             if (fireEffects) {
                 fireEffects.style.display = 'none';
             }
             
-            // Hide thorn decorations
+            
             const thornDecoration = document.querySelector('.thorn-decoration');
             if (thornDecoration) {
                 thornDecoration.style.display = 'none';
             }
         }
         
-        // Save to localStorage for persistence
+       
         if (saveToStorage) {
             localStorage.setItem('selectedMode', selectedMode);
         }
     }
 
-    // Handle mode changes
+    
     modeSelect.addEventListener('change', function() {
         const selectedMode = this.value;
         applyTheme(selectedMode, true);
     });
 
-    // Load all sessions function
+    
     async function loadSessions() {
         try {
-            // Get current token (it might have changed)
+            
             const currentToken = localStorage.getItem("token") || cookieToken;
             
             if (!currentToken) {
@@ -216,8 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Sessions loaded successfully:", data);
             sessionList.innerHTML = "";
             
-            // Sessions are already sorted by created_at DESC from the API
-            // Display them in the order received (newest first)
+           
             data.sessions.forEach((session) => {
                 const li = document.createElement("li");
                 li.className = 'session-item';
@@ -225,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const sessionDiv = document.createElement("div");
                 sessionDiv.className = "session-content";
                 
-                // Create session title with date
+               
                 const titleDiv = document.createElement("div");
                 titleDiv.className = "session-title";
                 titleDiv.textContent = session.title || "Default Session";
@@ -233,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const dateDiv = document.createElement("div");
                 dateDiv.className = "session-date";
                 
-                // Format the date to include time
+                
                 const sessionDate = new Date(session.created_at);
                 const formattedDate = sessionDate.toLocaleDateString() + ' ' + 
                                     sessionDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -266,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 throw new Error(data.error || 'Failed to delete session');
                             }
                             
-                            await loadSessions(); // Refresh to update the session list
+                            await loadSessions(); 
                             if (session.id === currentSessionId) {
                                 chatMessages.innerHTML = "";
                                 currentSessionId = null;
@@ -298,30 +321,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = messageInput.value.trim();
         if (!content) return;
 
-        // Clear input immediately and disable it
+    
         messageInput.value = '';
         messageInput.disabled = true;
         
         try {
-            // Add user message immediately to UI
             const userDiv = document.createElement("div");
             userDiv.classList.add("message", "user");
             userDiv.textContent = content;
             chatMessages.appendChild(userDiv);
 
-            // Add loading message based on mode
+
+            // Add loading message with mode-specific text
             const loadingDiv = document.createElement("div");
             loadingDiv.className = "loading-message";
             const selectedMode = modeSelect.value;
+            console.log(`🔄 Creating loading message for ${selectedMode} mode`);
+            
             if (selectedMode === "lucifer") {
                 loadingDiv.textContent = "The Devil is contemplating your words...";
+            } else if (selectedMode === "eren") {
+                loadingDiv.textContent = "Eren considers your words with burning conviction...";
             } else {
                 loadingDiv.textContent = "Fraude weaves through your thoughts...";
             }
             chatMessages.appendChild(loadingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // If no session, create one
+
             let sessionWasCreated = false;
             if (!currentSessionId) {
                 const currentToken = getCurrentToken();
@@ -348,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("chatTitle").textContent = sessionData.title;
                 sessionWasCreated = true;
                 
-                // Immediately refresh sessions to show the new one
+
                 await loadSessions();
             }
 
@@ -365,6 +392,16 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                     
+                    console.log(`📤 Sending message to backend for ${modeSelect.value} mode:`, {
+                        content: content.substring(0, 50) + "...",
+                        session_id: currentSessionId,
+                        mode: modeSelect.value
+                    });
+                    
+                    // Add timeout for faster response handling
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                    
                     const res = await fetch("/chat/message", {
                         method: "POST",
                         headers: {
@@ -375,12 +412,23 @@ document.addEventListener("DOMContentLoaded", () => {
                             content: content,
                             session_id: currentSessionId,
                             mode: modeSelect.value
-                        })
+                        }),
+                        signal: controller.signal
                     });
 
+                    clearTimeout(timeoutId);
+                    console.log(`📨 Response status: ${res.status} for ${modeSelect.value} mode`);
                     const data = await res.json();
+                    console.log(`📦 Response data received for ${modeSelect.value} mode:`, {
+                        status: data.status,
+                        reply_length: data.chatbot_reply?.length,
+                        session_title: data.session_title,
+                        mode: data.mode
+                    });
                     if (res.ok) {
-                        // Remove loading message
+                        console.log(`✅ Response received for ${modeSelect.value} mode:`, data.chatbot_reply?.substring(0, 50) + "...");
+                        
+                        // Remove loading message immediately
                         const loadingMessage = chatMessages.querySelector('.loading-message');
                         if (loadingMessage) {
                             loadingMessage.remove();
@@ -389,31 +437,78 @@ document.addEventListener("DOMContentLoaded", () => {
                         const botDiv = document.createElement("div");
                         botDiv.classList.add("message", "bot");
                         
-                        // Format the response with markdown-like syntax
+                        // Apply mode-specific styling
+                        if (modeSelect.value === "eren") {
+                            console.log("🎨 Applying Eren mode styling to bot message");
+                            // Ensure Eren styling is properly applied
+                            botDiv.classList.add("eren-mode-message");
+                        }
+                        
+                        // Format response with proper line breaks and code highlighting
                         let formattedResponse = data.chatbot_reply
                             .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                                 return `<pre><code class="language-${lang || ''}">${code.trim()}</code></pre>`;
                             })
                             .replace(/`([^`]+)`/g, '<code>$1</code>')
                             .replace(/\n\s*[-•]\s+([^\n]+)/g, '\n• $1')
-                            .replace(/\n\n/g, '<br><br>');
+                            .replace(/\n/g, '<br>'); // Convert single line breaks to <br>
                         
                         botDiv.innerHTML = formattedResponse;
                         chatMessages.appendChild(botDiv);
                         
-                        // Apply syntax highlighting to new content
+                        // Force immediate DOM update and scroll - multiple methods for reliability
+                        botDiv.offsetHeight; // Force reflow
+                        
+                        // Use multiple scroll approaches for immediate response
+                        setTimeout(() => {
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }, 0);
+                        
+                        requestAnimationFrame(() => {
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            
+                            // Double-check that the message is visible
+                            const messageRect = botDiv.getBoundingClientRect();
+                            const containerRect = chatMessages.getBoundingClientRect();
+                            
+                            if (messageRect.bottom > containerRect.bottom) {
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }
+                        });
+                        
                         if (typeof hljs !== 'undefined') {
                             hljs.highlightAll();
                         }
                         
+                        // Scroll to bottom immediately
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                         
-                        // Only refresh session list if a new session was created
-                        if (sessionWasCreated) {
-                            await loadSessions();
+                        // Update session title immediately if provided - force update
+                        if (data.session_title && data.session_title !== "Untitled Chat") {
+                            console.log(`📝 Updating session title: ${data.session_title}`);
+                            const titleElement = document.getElementById("chatTitle");
+                            titleElement.textContent = data.session_title;
+                            
+                            // Force title display by triggering reflow
+                            titleElement.offsetHeight;
+                            
+                            // Also update the active session in sidebar immediately
+                            const activeSession = document.querySelector('.session-item.active .session-title');
+                            if (activeSession) {
+                                activeSession.textContent = data.session_title;
+                            }
                         }
                         
-                        return; // Success, exit the retry loop
+                        // Force reload sessions to show updated title and ensure sync
+                        if (sessionWasCreated || data.session_title) {
+                            console.log(`🔄 Reloading sessions for ${modeSelect.value} mode`);
+                            setTimeout(() => {
+                                loadSessions();
+                            }, 100); // Small delay to ensure database is updated
+                        }
+                        
+                        console.log(`✅ Message displayed successfully for ${modeSelect.value} mode`);
+                        return; 
                     } else {
                         throw new Error(data.error || "Failed to send message");
                     }
@@ -421,37 +516,51 @@ document.addEventListener("DOMContentLoaded", () => {
                     lastError = error;
                     retryCount++;
                     
+                    console.log(`⚠️ Error in attempt ${retryCount}: ${error.message}`);
+                    
+                    // Handle specific error types
+                    if (error.name === 'AbortError') {
+                        console.log('⏰ Request timeout - server is slow');
+                        lastError = new Error('Response timed out. The server is taking too long to respond.');
+                    }
+                    
                     if (retryCount <= maxRetries) {
-                        // Update loading message to show retry
+                        // Update loading message for retry
                         const loadingMessage = chatMessages.querySelector('.loading-message');
                         if (loadingMessage) {
-                            loadingMessage.textContent = `Retry ${retryCount}/${maxRetries}: The serpent gathers its thoughts...`;
+                            if (modeSelect.value === "eren") {
+                                loadingMessage.textContent = `Retry ${retryCount}/${maxRetries}: Breaking through the barriers...`;
+                            } else if (modeSelect.value === "lucifer") {
+                                loadingMessage.textContent = `Retry ${retryCount}/${maxRetries}: The Devil doesn't give up easily...`;
+                            } else {
+                                loadingMessage.textContent = `Retry ${retryCount}/${maxRetries}: The serpent gathers its thoughts...`;
+                            }
                         }
-                        // Wait before retrying (exponential backoff)
+                        
                         await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                     }
                 }
             }
             
-            // If we get here, all retries failed
+            
             throw lastError;
         } catch (err) {
             console.error("Error:", err);
             
-            // Remove loading message if there was an error
+            
             const loadingMessage = chatMessages.querySelector('.loading-message');
             if (loadingMessage) {
                 loadingMessage.remove();
             }
             
-            // Show error message in chat
+            
             const errorDiv = document.createElement("div");
             errorDiv.classList.add("message", "bot", "error");
             errorDiv.textContent = err.message || "Something went wrong. Please try again.";
             chatMessages.appendChild(errorDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         } finally {
-            // Always re-enable and focus the input
+            
             messageInput.disabled = false;
             messageInput.focus();
         }
@@ -461,6 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadMessages(sessionId, title) {
         try {
             if (!sessionId) return;
+            
+            console.log(`📥 Loading messages for session ${sessionId} with title: ${title}`);
             
             const currentToken = getCurrentToken();
             if (!currentToken) {
@@ -483,12 +594,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(data.error || 'Failed to load messages');
             }
 
+            console.log(`📨 Loaded ${data.messages.length} messages for session ${sessionId}`);
             chatMessages.innerHTML = "";
-            data.messages.forEach((msg) => {
+            
+            data.messages.forEach((msg, index) => {
+                console.log(`📝 Processing message ${index + 1}: ${msg.sender} in ${msg.mode || 'fraude'} mode`);
+                
                 const div = document.createElement("div");
                 div.classList.add("message", msg.sender === "user" ? "user" : "bot");
                 
-                // Format bot messages with markdown-like syntax
+                // Apply mode-specific styling
+                if (msg.mode === "eren" && msg.sender === "bot") {
+                    div.classList.add("eren-mode-message");
+                }
+                
                 if (msg.sender === "bot") {
                     let formattedContent = msg.content
                         .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
@@ -496,7 +615,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         })
                         .replace(/`([^`]+)`/g, '<code>$1</code>')
                         .replace(/\n\s*[-•]\s+([^\n]+)/g, '\n• $1')
-                        .replace(/\n\n/g, '<br><br>');
+                        .replace(/\n/g, '<br>');
                     
                     div.innerHTML = formattedContent;
                 } else {
@@ -505,19 +624,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 chatMessages.appendChild(div);
             });
             
-            // Apply syntax highlighting to all loaded content
+            // Apply syntax highlighting
             if (typeof hljs !== 'undefined') {
                 hljs.highlightAll();
             }
             
+            // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            console.log(`✅ Messages loaded successfully for session ${sessionId}`);
         } catch (err) {
             console.error('Error loading messages:', err);
             alert(err.message || 'Failed to load messages');
         }
     }
 
-    // Create a new session
+
     newSessionBtn.addEventListener("click", async () => {
         try {
             newSessionBtn.disabled = true;
@@ -548,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentSessionId = data.session_id;
             chatTitle.textContent = data.title;
             chatMessages.innerHTML = "";
-            await loadSessions(); // Refresh to show the new session
+            await loadSessions(); 
         } catch (err) {
             console.error("Error:", err);
             alert(err.message || "Could not create new session");
@@ -557,14 +679,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle logout
+
     logoutBtn.addEventListener("click", async () => {
         console.log('Logout function called from chat');
         
         try {
             const currentToken = getCurrentToken();
             if (currentToken) {
-                // Call logout endpoint to clear server-side session
+  
                 await fetch("/logout", {
                     method: "POST",
                     headers: {
@@ -577,17 +699,16 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Logout request failed, but continuing with client-side cleanup");
         }
         
-        // Clear client-side tokens and saved preferences
+
         localStorage.removeItem("token");
-        localStorage.removeItem("selectedMode"); // Also clear theme preference
+        localStorage.removeItem("selectedMode"); 
         sessionStorage.clear();
         
-        // Clear cookies more thoroughly
+    
         document.cookie.split(";").forEach(function(c) { 
             document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
         });
         
-        // Clear any cached data
         if ('caches' in window) {
             caches.keys().then(names => {
                 names.forEach(name => {
@@ -596,49 +717,47 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
         
-        // Prevent back navigation to logged-in pages
+        
         console.log('Redirecting to login from chat...');
         window.history.replaceState(null, null, "/login");
-        window.location.replace("/login"); // Use replace to prevent back navigation
+        window.location.replace("/login"); 
     });
 
-    // Load sessions on page load
+    
     loadSessions();
     
-    // Clean up any corrupted localStorage values
+    
     const cleanupStorage = () => {
         const savedMode = localStorage.getItem('selectedMode');
-        if (savedMode && savedMode !== 'fraude' && savedMode !== 'lucifer') {
+        if (savedMode && savedMode !== 'fraude' && savedMode !== 'lucifer' && savedMode !== 'eren') {
             console.log('Removing invalid mode from localStorage:', savedMode);
             localStorage.removeItem('selectedMode');
         }
     };
     
     cleanupStorage();
-    
-    // Initialize theme based on saved preference - ensure fraude is always default
+
     const initializeTheme = () => {
-        // Get saved mode from localStorage, but ensure fraude is the fallback
+       
         const savedMode = localStorage.getItem('selectedMode');
         
         console.log('Retrieved savedMode from localStorage:', savedMode);
         
-        // Default to fraude if nothing is saved or if invalid value
-        let modeToUse = 'fraude'; // Always start with fraude as default
+        let modeToUse = 'fraude'; 
         
         if (savedMode === 'lucifer') {
             modeToUse = 'lucifer';
+        } else if (savedMode === 'eren') {
+            modeToUse = 'eren';
         }
         
         console.log('Initializing theme with mode:', modeToUse);
-        
-        // Set the select value without triggering change event
+
         modeSelect.value = modeToUse;
-        
-        // Apply the theme and save the preference if it wasn't saved before
+  
         applyTheme(modeToUse, !savedMode);
     };
     
-    // Initialize theme immediately when DOM elements are available
+
     initializeTheme();
 });

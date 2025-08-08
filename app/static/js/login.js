@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.token) {
-                    // Use replaceState to prevent back button issues
+                
                     history.replaceState(null, "", data.redirect);
                     window.location.href = data.redirect;
                 } else if (data.error) {

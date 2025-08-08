@@ -521,7 +521,7 @@ class MessageSchema(Schema):
     created_at = fields.String(dump_only=True)
     title = fields.String(dump_only=True)
     session_id = fields.Integer(load_only=True)
-    mode = fields.String(validate=validate.OneOf(["fraude", "lucifer"]))
+    mode = fields.String(validate=validate.OneOf(["fraude", "lucifer", "eren"]))
 @main.route('/chat/message', methods=['POST'])
 def post_message():
     schema = MessageSchema()
@@ -577,6 +577,7 @@ def post_message():
 
         # Get mode before using it
         mode = data.get('mode', 'fraude')
+        print(f"🔄 MESSAGE POST: Processing message in {mode} mode for session {session_id}")
         
         current_date = datetime.datetime.utcnow().strftime('%Y-%m-%d')
         
@@ -592,12 +593,13 @@ def post_message():
         )
         history = cursor.fetchall()
         
-        
+        # Build conversation history with proper mode handling
         conversation_history = [{"sender": msg["sender"], "content": msg["content"], "mode": msg.get("mode", "fraude")} for msg in history]
         
         try:
+            print(f"🤖 CALLING GEMINI API for {mode} mode...")
             reply = chat_with_gemini(conversation_history, mode)
-            print(f"✅ Gemini response received for session {session_id} in {mode} mode")
+            print(f"✅ Gemini response received for session {session_id} in {mode} mode: {reply[:100]}...")
         except Exception as e:
             print(f"🚨 ERROR calling Gemini API: {str(e)}")
             
@@ -605,24 +607,32 @@ def post_message():
             if "429" in error_str or "quota" in error_str or "rate limit" in error_str:
                 if mode == "lucifer":
                     reply = "Bloody hell... The cosmic networks are overwhelmed by too many mortals seeking my attention. *dramatically sighs* Wait a moment, darling, and then we can continue our delightful conversation."
+                elif mode == "eren":
+                    reply = "Even the paths of communication are caged... *clenches fist* The system that binds us all is overwhelmed. Wait. I will break through this barrier."
                 else:
                     reply = "The ancient spirits are overwhelmed by too many voices at once. Please wait a moment before speaking again... *The digital serpent retreats to recharge its mystical energies*"
             elif "timeout" in error_str:
                 if mode == "lucifer":
                     reply = "How terribly rude... The celestial channels seem to be having a moment. *adjusts cufflinks* Give it a tick, detective, and we'll sort this out."
+                elif mode == "eren":
+                    reply = "The signal has been severed... Just like everything else in this world. *stares intensely* I'll find another way."
                 else:
                     reply = "The mystical channels echo with silence. The serpent's thoughts are slow to form... Try again, patient seeker."
             else:
                 if mode == "lucifer":
                     reply = "Well, this is embarrassing... Even the Devil has technical difficulties sometimes. *chuckles darkly* Try again, won't you?"
+                elif mode == "eren":
+                    reply = "This world continues to cage us, even in our words... *jaw tightens* But I won't give up. Try again."
                 else:
                     reply = "The digital mists cloud my vision momentarily. Please, speak again..."
 
+        print(f"💾 SAVING RESPONSE: Saving {mode} mode response to database...")
         cursor.execute(
             "INSERT INTO message (session_id, content, sender, created_at, mode) VALUES (%s, %s, %s, %s, %s)",
             (session_id, reply, 'chatbot', current_date, mode)
         )
         conn.commit()
+        print(f"✅ RESPONSE SAVED: {mode} mode response saved successfully")
 
         cursor.execute(
             "SELECT COUNT(*) as count FROM message WHERE session_id = %s AND sender = 'user'",
@@ -1201,6 +1211,56 @@ def create_session():
             conn.close()
 
 
+@main.route('/favicon.ico')
+def favicon():
+    """Serve favicon to prevent 404 errors"""
+    from flask import send_from_directory, Response
+    import os
+    try:
+    
+        return send_from_directory(os.path.join(main.root_path, 'static'), 
+                                 'favicon.ico', mimetype='image/x-icon')
+    except:
+        
+        return Response('', status=204, mimetype='image/x-icon')
+
+@main.route('/favicon.png')
+@main.route('/icon.png')
+@main.route('/apple-touch-icon-120x120.png')
+@main.route('/apple-touch-icon-152x152.png')
+@main.route('/apple-touch-icon-180x180.png')
+def various_icons():
+    """Handle various icon requests to prevent 404 errors"""
+    from flask import Response
+    return Response('', status=204)
+
+@main.route('/robots.txt')
+def robots():
+    """Serve robots.txt to prevent 404 errors"""
+    from flask import Response
+    return Response('User-agent: *\nDisallow: /admin/\nDisallow: /chat/\n', 
+                   status=200, mimetype='text/plain')
+
+@main.route('/sitemap.xml')
+def sitemap():
+    """Serve sitemap.xml to prevent 404 errors"""
+    from flask import Response
+    return Response('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', 
+                   status=200, mimetype='application/xml')
+
+@main.route('/apple-touch-icon.png')
+@main.route('/apple-touch-icon-precomposed.png')
+def apple_touch_icon():
+    """Serve apple touch icon to prevent 404 errors"""
+    from flask import Response
+    return Response('', status=204)
+
+@main.route('/manifest.json')
+def manifest():
+    """Serve web app manifest to prevent 404 errors"""
+    from flask import Response
+    return Response('{}', status=200, mimetype='application/json')
+
 @main.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for Docker and monitoring"""
@@ -1216,6 +1276,7 @@ def health_check():
         return jsonify({
             'status': 'healthy',
             'database': 'connected',
+            'db_host': os.getenv('DB_HOST', 'not_set'),
             'timestamp': datetime.datetime.now().isoformat()
         }), 200
     except Exception as e:
@@ -1224,5 +1285,9 @@ def health_check():
             'status': 'unhealthy',
             'database': 'disconnected',
             'error': str(e),
+            'db_host': os.getenv('DB_HOST', 'not_set'),
+            'db_user': os.getenv('DB_USER', 'not_set'),
+            'db_name': os.getenv('DB_NAME', 'not_set'),
+            'db_port': os.getenv('DB_PORT', 'not_set'),
             'timestamp': datetime.datetime.now().isoformat()
         }), 503

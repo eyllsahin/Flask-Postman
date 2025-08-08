@@ -1,8 +1,8 @@
-// Check if user is already logged in before allowing registration
+
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem('token');
     if (token) {
-        // Verify token is valid by making a simple authenticated request
+       
         fetch('/chat/sessions', {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }).then(response => {
             if (response.ok) {
-                // Token is valid, redirect to appropriate page
+               
                 return fetch('/admin/users', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -24,11 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             } else {
-                // Token is invalid, clear it and continue with registration
+                
                 localStorage.removeItem('token');
             }
         }).catch(err => {
-            // Network error or invalid token, clear and continue
+            
             localStorage.removeItem('token');
         });
     }
