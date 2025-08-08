@@ -1,0 +1,2 @@
+2025-08-08 08:42:19,099 INFO: Chatbot startup [in /app/app/__init__.py:36]
+2025-08-08 10:00:22,690 INFO: New session created successfully: session_id=162, title=New Chat, user_id=26 [in /app/app/routes.py:1017]

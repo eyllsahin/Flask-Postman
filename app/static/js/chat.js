@@ -480,31 +480,31 @@ document.addEventListener("DOMContentLoaded", () => {
                             hljs.highlightAll();
                         }
                         
-                        // Scroll to bottom immediately
+                        
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                         
-                        // Update session title immediately if provided - force update
+                  
                         if (data.session_title && data.session_title !== "Untitled Chat") {
                             console.log(`📝 Updating session title: ${data.session_title}`);
                             const titleElement = document.getElementById("chatTitle");
                             titleElement.textContent = data.session_title;
                             
-                            // Force title display by triggering reflow
+                           
                             titleElement.offsetHeight;
                             
-                            // Also update the active session in sidebar immediately
+                            
                             const activeSession = document.querySelector('.session-item.active .session-title');
                             if (activeSession) {
                                 activeSession.textContent = data.session_title;
                             }
                         }
                         
-                        // Force reload sessions to show updated title and ensure sync
+                        
                         if (sessionWasCreated || data.session_title) {
                             console.log(`🔄 Reloading sessions for ${modeSelect.value} mode`);
                             setTimeout(() => {
                                 loadSessions();
-                            }, 100); // Small delay to ensure database is updated
+                            }, 100); 
                         }
                         
                         console.log(`✅ Message displayed successfully for ${modeSelect.value} mode`);
@@ -518,14 +518,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     console.log(`⚠️ Error in attempt ${retryCount}: ${error.message}`);
                     
-                    // Handle specific error types
+                    
                     if (error.name === 'AbortError') {
                         console.log('⏰ Request timeout - server is slow');
                         lastError = new Error('Response timed out. The server is taking too long to respond.');
                     }
                     
                     if (retryCount <= maxRetries) {
-                        // Update loading message for retry
+                        
                         const loadingMessage = chatMessages.querySelector('.loading-message');
                         if (loadingMessage) {
                             if (modeSelect.value === "eren") {
@@ -603,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const div = document.createElement("div");
                 div.classList.add("message", msg.sender === "user" ? "user" : "bot");
                 
-                // Apply mode-specific styling
+              
                 if (msg.mode === "eren" && msg.sender === "bot") {
                     div.classList.add("eren-mode-message");
                 }
@@ -624,12 +624,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 chatMessages.appendChild(div);
             });
             
-            // Apply syntax highlighting
+        
             if (typeof hljs !== 'undefined') {
                 hljs.highlightAll();
             }
             
-            // Scroll to bottom
+    
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
             console.log(`✅ Messages loaded successfully for session ${sessionId}`);

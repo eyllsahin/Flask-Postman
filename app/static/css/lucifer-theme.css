@@ -50,7 +50,7 @@ body.lucifer-mode::before {
     animation: devilFloat 8s ease-in-out infinite;
 }
 
-/* Lucifer Logo Styling */
+
 body.lucifer-mode .lucifer-logo {
     display: block !important;
     width: 120px;
@@ -96,7 +96,7 @@ body.lucifer-mode .lucifer-logo:hover {
     transform: scale(1.1);
 }
 
-/* Hide Fraude logo in Lucifer mode */
+
 body.lucifer-mode .fraude-logo {
     display: none !important;
 }
@@ -269,19 +269,19 @@ body.lucifer-mode .fraude-logo {
 
 
 .lucifer-mode #chatMessages:empty::before {
-    content: "🔥 Welcome to the Infernal Depths 🔥\A\A Express your darkest thoughts and let the demonic conversation ignite...";
+    content: "🔥 Welcome to the Infernal Depths 🔥\A\AExpress your darkest thoughts and let the demonic conversation ignite...";
     
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: pre-line;
-
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 
+    display: flex;
+    align-items: center;   /* vertical centering */
+    justify-content: center; /* horizontal centering */
+
+    white-space: pre-line;
     text-align: center;
     color: var(--devil-gold);
     font-family: 'Crimson Text', serif;
@@ -293,7 +293,12 @@ body.lucifer-mode .fraude-logo {
     animation: hellishPulse 3s ease-in-out infinite alternate;
     pointer-events: none; 
 }
- 
+
+/* Make sure parent is positioned relative */
+.lucifer-mode #chatMessages {
+    position: relative;
+}
+
   
   
 .lucifer-mode .message.user {
